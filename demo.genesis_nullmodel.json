@@ -1,0 +1,13 @@
+{
+  "genesis_nullmodel_wf.this_covariates_string": "ancestry,sex,last_exam_age,bmi",
+  "genesis_nullmodel_wf.this_test_stat": "Score",
+  "genesis_nullmodel_wf.this_kinship_matrix": "inputs/1KG_phase3_subset.grm.RData",
+  "genesis_nullmodel_wf.this_outcome_name": "t2d",
+  "genesis_nullmodel_wf.this_disk": 20,
+  "genesis_nullmodel_wf.this_pheno_file": "inputs/1KG_phase3_subset.phenotypes.csv",
+  "genesis_nullmodel_wf.this_results_file": "1KG_phase3_subset.Rda",
+  "genesis_nullmodel_wf.this_outcome_type": "Dichotomous",
+  "genesis_nullmodel_wf.this_pheno_id": "sample_id",
+  "genesis_nullmodel_wf.this_memory": 10
+}
+
