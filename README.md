@@ -1,6 +1,6 @@
 # GENESIS: Statistical methods for analyzing genetic data from samples
-Maintainer: (?)
-Version: (x.x)
+Maintainer: Tim Majarian  
+Version: 0.1
 
 ## Description:
 Runs single variant and aggregate test for genetic data. Implements Single-variant, Burden, SKAT and SKAT-O tests for Continuous or Dichotomous outcomes. All tests account for familial relatedness through kinship matrices. Underlying functions adapted from: Conomos MP and Thornton T (2016). GENESIS: GENetic EStimation and Inference in Structured samples (GENESIS): Statistical methods for analyzing genetic data from samples with population structure and/or relatedness. R package version 2.5+. http://bioconductor.org/packages/devel/bioc/html/GENESIS.html https://github.com/smgogarten/GENESIS
@@ -48,7 +48,7 @@ This workflow uses the GENESIS package developed by Matt Conomos, Tim Thornton a
 - **this_min_mac**: [int] Minimim MAC Minimum minor allele count for threshold ( only used for single variant tests )  
 - **this_weights**: Weights function Beta weights set to flat weights (e.g. set to 'c(1,1)' for unweighted, 'c(1,25)' for Wu weights or 'c(0.5,0.5)' for Madsen-Browning weights). Not used in single var analyses.  
 - **this_weights_col**: [string] Name of column in aggfile that contains the variant weights  
-- **this_user_cores**: [int] defaults to 2 less than the number of cores available. memory needed will depend on test configuation and sample size. if your analysis is terminiating with an out-of-memory error, reduce the number of cores  
+- **this_user_cores**: [int] defaults to 2 less than the number of cores available. memory needed will depend on test configuration and sample size. if your analysis is terminiating with an out-of-memory error, reduce the number of cores  
 - **this_window**: [int] window size for sliding window test  
 - **this_step**: [int] step size for sliding window test  
 - **these_genotype_files**: [file] Genotypes GDS formatted genotype files ( see convertVCF2GDS_v3 App ).  
