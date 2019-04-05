@@ -1,5 +1,5 @@
 # GENESIS: Statistical methods for analyzing genetic data from samples
-Maintainer: Tim Majarian  
+Maintainer: Analysis Commons  
 Version: 0.1
 
 ## Description:

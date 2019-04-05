@@ -23,7 +23,7 @@ task genesis_tests {
 	}
 
 	runtime {
-		docker: "tmajarian/genesis_dnanexus:v0.1"
+		docker: "analysiscommon/genesis_wdl:v0.1"
 		disks: "local-disk ${disk} SSD"
 		memory: "${memory} GB"
 	}

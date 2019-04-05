@@ -19,7 +19,7 @@ task genesis_nullmodel {
 	}
 
 	runtime {
-		docker: "tmajarian/genesis_dnanexus:v0.1"
+		docker: "analysiscommon/genesis_wdl:v0.1"
 		disks: "local-disk ${disk} HDD"
 		memory: "${memory} GB"
 	}
