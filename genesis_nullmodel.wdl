@@ -3,7 +3,7 @@ task genesis_nullmodel {
 	String? outcome_type
 	String? covariates_string
 	File pheno_file
-	File? genotype_file
+	File genotype_file
 	String results_file
 	File? kinship_matrix
 	String? pheno_id
@@ -15,7 +15,7 @@ task genesis_nullmodel {
 	Int disk
 
 	command {
-		R --vanilla --args ${outcome_name} ${default="Continuous" outcome_type} ${default="NA" covariates_string} ${pheno_file} ${default="NA" genotype_file} ${results_file} ${default="NO_KINSHIP_FILE" kinship_matrix} ${default="ID" pheno_id} ${default="Score" test_stat} ${default="NA" conditional} ${default="NA" het_varsIn} < /genesis_dnanexus/genesis_nullmodel.R
+		R --vanilla --args ${outcome_name} ${default="Continuous" outcome_type} ${default="NA" covariates_string} ${pheno_file} ${genotype_file} ${results_file} ${default="NO_KINSHIP_FILE" kinship_matrix} ${default="ID" pheno_id} ${default="Score" test_stat} ${default="NA" conditional} ${default="NA" het_varsIn} < /genesis_dnanexus/genesis_nullmodel.R
 	}
 
 	runtime {
@@ -34,7 +34,7 @@ workflow genesis_nullmodel_wf {
 	String? this_outcome_type
 	String? this_covariates_string
 	File this_pheno_file
-	File? this_genotype_file
+	Array[File] these_genotype_files
 	String this_results_file
 	File? this_kinship_matrix
 	String? this_pheno_id
@@ -76,7 +76,7 @@ workflow genesis_nullmodel_wf {
 			outcome_type = this_outcome_type,
 			covariates_string = this_covariates_string,
 			pheno_file = this_pheno_file,
-			genotype_file = this_genotype_file,
+			genotype_file = these_genotype_files[1],
 			results_file = this_results_file,
 			kinship_matrix = this_kinship_matrix,
 			pheno_id = this_pheno_id,
