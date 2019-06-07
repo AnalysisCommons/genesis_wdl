@@ -76,8 +76,7 @@ suppressMessages(library(GENESIS))
 suppressMessages(library(data.table))
 
 ## Setup
-# source("/home/dnanexus/pipelineFunctions.R")
-source("/genesis_dnanexus/pipelineFunctions.R")
+source("/genesis_wdl/pipelineFunctions.R")
 sessionInfo()
 
 if (covariate.string == "NA") {

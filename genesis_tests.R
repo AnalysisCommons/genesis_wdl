@@ -123,7 +123,7 @@ if(!exists("annotated.frame")){
 
 
 ## Setup
-source("/genesis_dnanexus/pipelineFunctions.R")
+source("/genesis_wdl/pipelineFunctions.R")
   
 svd <- SeqVarData(f, sampleData=annotated.frame)
 vi <- variantInfo(svd, alleles = FALSE, expanded=FALSE)
