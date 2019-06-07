@@ -19,7 +19,7 @@ task genesis_tests {
 	Int disk
 
 	command {
-		R --vanilla --args ${default="NONE" agg_file} ${default="1" top_maf} ${default="Score" test_stat} ${test_type} ${default="5" min_mac} ${default="FALSE" weights} ${default="FALSE" weights_col} ${default="30" user_cores} ${default="0" window} ${default="0" step} ${genotype_file} ${null_model} ${results_file} < /genesis_dnanexus/genesis_tests.R
+		R --vanilla --args ${default="NONE" agg_file} ${default="1" top_maf} ${default="Score" test_stat} ${test_type} ${default="5" min_mac} ${default="FALSE" weights} ${default="FALSE" weights_col} ${default="30" user_cores} ${default="0" window} ${default="0" step} ${genotype_file} ${null_model} ${results_file} < /genesis_wdl/genesis_tests.R
 	}
 
 	runtime {

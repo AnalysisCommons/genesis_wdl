@@ -15,7 +15,7 @@ task genesis_nullmodel {
 	Int disk
 
 	command {
-		R --vanilla --args ${outcome_name} ${default="Continuous" outcome_type} ${default="NA" covariates_string} ${pheno_file} ${genotype_file} ${results_file} ${default="NO_KINSHIP_FILE" kinship_matrix} ${default="ID" pheno_id} ${default="Score" test_stat} ${default="NA" conditional} ${default="NA" het_varsIn} < /genesis_dnanexus/genesis_nullmodel.R
+		R --vanilla --args ${outcome_name} ${default="Continuous" outcome_type} ${default="NA" covariates_string} ${pheno_file} ${genotype_file} ${results_file} ${default="NO_KINSHIP_FILE" kinship_matrix} ${default="ID" pheno_id} ${default="Score" test_stat} ${default="NA" conditional} ${default="NA" het_varsIn} < /genesis_wdl/genesis_nullmodel.R
 	}
 
 	runtime {
