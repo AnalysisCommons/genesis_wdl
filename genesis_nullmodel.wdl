@@ -25,7 +25,7 @@ task genesis_nullmodel {
 	}
 
 	output {
-		File results = "${results_file}"
+		File results = select_first(glob("${results_file}*"))
 	}
 }
 
