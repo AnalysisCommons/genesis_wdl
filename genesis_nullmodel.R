@@ -85,8 +85,9 @@ if (covariate.string == "NA") {
   covariates <- split.by.comma(covariate.string)    
 }
 
-
-
+cat('covariates:',paste(covariates, collapse = ", "),'\n')
+cat('all terms:', paste(unique(c(outcome.name, covariates, het_vars, gcol)), collapse = ", "), '\n')
+ 
 ## phenotype 
 phenotype.data <- read.csv(pheno.file, header=TRUE, as.is=TRUE)
 
