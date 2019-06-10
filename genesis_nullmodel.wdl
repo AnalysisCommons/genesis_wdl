@@ -76,7 +76,7 @@ workflow genesis_nullmodel_wf {
 			outcome_type = this_outcome_type,
 			covariates_string = this_covariates_string,
 			pheno_file = this_pheno_file,
-			genotype_file = these_genotype_files[1],
+			genotype_file = these_genotype_files[0],
 			results_file = this_results_file,
 			kinship_matrix = this_kinship_matrix,
 			pheno_id = this_pheno_id,
