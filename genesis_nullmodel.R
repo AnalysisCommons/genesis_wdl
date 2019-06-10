@@ -86,7 +86,7 @@ if (covariate.string == "NA") {
 }
 
 cat('covariates:',paste(covariates, collapse = ", "),'\n')
-cat('all terms:', paste(unique(c(outcome.name, covariates, het_vars, gcol)), collapse = ", "), '\n')
+cat('all terms:', paste(unique(c(outcome.name, covariates, het_varsIn)), collapse = ", "), '\n')
  
 ## phenotype 
 phenotype.data <- read.csv(pheno.file, header=TRUE, as.is=TRUE)
@@ -264,4 +264,4 @@ if (kinship.matrix == 'NO_KINSHIP_FILE'){
                      cov.mat = kmatr)
       }
 }
-save(nullmod,pheno,file=results.file)
+save(nullmod,pheno,file= paste0(results.file, '.RData'))
