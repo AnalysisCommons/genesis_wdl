@@ -47,7 +47,7 @@ workflow genesis_nullmodel_wf {
 
 	# Workflow metadata
 	meta {
-		summary: "Runs the null model for use in the genesis app"
+		description: "This workflow creates a null model from phenotype data with the GENESIS biostatistical package. This null model can then be used for association testing."
 		tags: "Statistics"
 	    author: "Jen Brody (base code) & Tim Majarian (modifications and adaptations, WDL, docker)"
 	    email: "tmajaria@broadinstitute.org"
