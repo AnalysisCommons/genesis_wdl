@@ -303,6 +303,7 @@ runMainAnalysis = function(user_cores,in_nullmod,keepVars=NULL, keepGenes=NULL){
 
 #sort( sapply(ls(),function(x){object.size(get(x))})) 
 results = as.data.frame(runMainAnalysis(user_cores=user_cores,in_nullmod=nullmod),stringsAsFactors=F)
+if (!endsWith(results.file, ".csv")) results.file <- paste0(results.file, ".csv")
 results.file <- sub(".csv", paste0(".", chr, ".csv"), results.file)
 if (!endsWith(results.file, ".gz")) results.file <- paste0(results.file, ".gz")
 out <- gzfile(results.file, "w")
