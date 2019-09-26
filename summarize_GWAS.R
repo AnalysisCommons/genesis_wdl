@@ -65,12 +65,12 @@ assoc$pos <- as.numeric(as.character(assoc$pos))
 assoc$P <- as.numeric(as.character(assoc[,pval]))
 
 # Write out all results
-fwrite(assoc, paste0(results.file, ".all.assoc.csv"), sep=",", row.names = F)
+fwrite(assoc, paste0(results.file, ".all_variants.assoc.csv"), sep=",", row.names = F)
 
 # Write out the top results
 top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
 if (nrow(top.assoc) == 0){
-  fwrite(list(), paste0(results.file, ".all_variants.assoc.csv"), sep=",", row.names = F)
+  fwrite(list(), paste0(results.file, ".top_variants.assoc.csv"), sep=",", row.names = F)
 } else {
   fwrite(top.assoc, paste0(results.file, ".top_variants.assoc.csv"), sep=",", row.names = F)  
 }
