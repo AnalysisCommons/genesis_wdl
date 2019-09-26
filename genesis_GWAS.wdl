@@ -73,7 +73,7 @@ task summarize {
 	Int? disk
 
 	command {
-		R --vanilla --args ${default="0.0001" pval_threshold} ${results_file} ${sep="," assoc_files} < /genesis_wdl/genesis_tests.R
+		R --vanilla --args ${default="0.0001" pval_threshold} ${results_file} ${sep="," assoc_files} < /genesis_wdl/summarize_GWAS.R
 	}
 
 	runtime {
