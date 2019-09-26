@@ -46,7 +46,7 @@ lam.new <- function(x,p=.5){
 # Parse inputs
 input_args <- commandArgs(trailingOnly=T)
 pval.threshold <- as.numeric(input_args[1])
-label <- input_args[2]
+results.file <- input_args[2]
 assoc.files <- unlist(strsplit(input_args[3], ","))
 
 # Load result files and concat
@@ -65,24 +65,24 @@ assoc$pos <- as.numeric(as.character(assoc$pos))
 assoc$P <- as.numeric(as.character(assoc[,pval]))
 
 # Write out all results
-fwrite(assoc, paste0(label, ".all.assoc.csv"), sep=",", row.names = F)
+fwrite(assoc, paste0(results.file, ".all.assoc.csv"), sep=",", row.names = F)
 
 # Write out the top results
 top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
 if (nrow(top.assoc) == 0){
-  fwrite(list(), paste0(label, ".top.assoc.csv"), sep=",", row.names = F)
+  fwrite(list(), paste0(results.file, ".all_variants.assoc.csv"), sep=",", row.names = F)
 } else {
-  fwrite(top.assoc, paste0(label, ".top.assoc.csv"), sep=",", row.names = F)  
+  fwrite(top.assoc, paste0(results.file, ".top_variants.assoc.csv"), sep=",", row.names = F)  
 }
 
 # Generate summary plots
 if (any(assoc$freq < 0.01)) {
-  png(filename = paste0(label,".association.plots.png"), width = 8, height = 8, units = "in", res = 400, type = "cairo")
+  png(filename = paste0(results.file,".association.plots.png"), width = 8, height = 8, units = "in", res = 400, type = "cairo")
   layout(matrix(c(1,2,3,3),nrow=2,byrow = T))
   make_summary_plot(assoc, pval_col = "P")
   dev.off()
 } else {
-  png(filename = paste0(label,".association.plots.png"), width = 12, height = 4, units = "in", res = 400, type = "cairo")
+  png(filename = paste0(results.file,".association.plots.png"), width = 12, height = 4, units = "in", res = 400, type = "cairo")
   layout(matrix(c(1,2,2),nrow=1,byrow = T))
   make_small_summary_plot(assoc, pval_col = "P")
   dev.off()

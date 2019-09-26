@@ -64,6 +64,32 @@ task genesis_tests {
 	}
 }
 
+task summarize {
+	Float? pval_threshold
+	String results_file
+	Array[File] assoc_files
+
+	Int? memory
+	Int? disk
+
+	command {
+		R --vanilla --args ${default="0.0001" pval_threshold} ${results_file} ${sep="," assoc_files} < /genesis_wdl/genesis_tests.R
+	}
+
+	runtime {
+		docker: "analysiscommon/genesis_wdl:v0.1"
+		disks: "local-disk " + select_first([disk,"100"]) + " HDD"
+		memory: select_first([memory,"20"]) + " GB"
+	}
+
+	output {
+		File all_results = "${results_file}.all_variants.assoc.csv"
+		File top_results = "${results_file}.top_variants.assoc.csv"
+		File plots = "${results_file}.association.plots.png"
+	}
+
+}
+
 workflow genesis_gwas_wf {
 	# null model inputs
 	String this_outcome_name
@@ -92,6 +118,11 @@ workflow genesis_gwas_wf {
 	Float? this_step
 	Int? this_tests_memory
 	Int? this_tests_disk
+
+	# summarization inputs
+	Float? this_pval_threshold
+	Int? this_summarize_memory
+	Int? this_summarize_disk
 	
 
 	# Workflow metadata
@@ -129,6 +160,9 @@ workflow genesis_gwas_wf {
 		this_step: "name: step, help: For use with 'window', indicates sliding window step size, in bp, class: int, optional: true, default: 0"
 		this_tests_memory: "help: memory desired for computation in GB, class: int, optional: true, default: 30"
 		this_tests_disk: "help: disk space desired for computation in GB, class:int, optional: true, default: 100"
+		this_pval_threshold: "help: threshold over association p-value for generating top results table from the summarize task, class: float, optional: true, default: 0.0001"
+		this_summarize_memory: "help: memory desired for computation in GB, class: int, optional: true, default: 30"
+		this_summarize_disk: "help: memory desired for computation in GB, class: int, optional: true, default: 30"
 	}
 
 	call genesis_nullmodel {
@@ -170,8 +204,20 @@ workflow genesis_gwas_wf {
 		}
 	}
 
+	call summarize {
+		input:
+			pval_threshold = this_pval_threshold,
+			results_file = this_results_file,
+			assoc_files = genesis_tests.results,
+			memory = this_summarize_memory,
+			disk = this_summarize_disk
+	}
+
 	output {
 		File null_model = genesis_nullmodel.results
-        Array[File] result = genesis_tests.results
+        Array[File] raw_association_files = genesis_tests.results
+        File all_summary_statistics = summarize.all_results
+        File top_summary_statistics = summarize.top_results
+        File summary_plots = summarize.plots
     }
 }
