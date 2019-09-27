@@ -91,7 +91,7 @@ if (nrow(assoc) == 0){
   # Write out the top results
   top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
   if (nrow(top.assoc) == 0){
-    fwrite(list(), paste0(results.file, ".top_variants.assoc.csv"), sep=",", row.names = F)
+    fwrite(list(NA), paste0(results.file, ".top_variants.assoc.csv"), sep=",", row.names = F)
   } else {
     fwrite(top.assoc, paste0(results.file, ".top_variants.assoc.csv"), sep=",", row.names = F)  
   }
