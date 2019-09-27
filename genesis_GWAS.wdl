@@ -83,8 +83,8 @@ task summarize {
 	}
 
 	output {
-		File all_results = "${results_file}.all_variants.assoc.csv"
-		File top_results = "${results_file}.top_variants.assoc.csv"
+		File all_results = "${results_file}.all_variants.assoc.csv.gz"
+		File top_results = "${results_file}.top_variants.assoc.csv.gz"
 		File plots = "${results_file}.association.plots.png"
 	}
 
