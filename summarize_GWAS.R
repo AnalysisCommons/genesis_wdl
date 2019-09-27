@@ -1,5 +1,5 @@
 # install/load packages
-packages <- c("qqman","data.table","RColorBrewer")
+packages <- c("qqman","data.table")
 lapply(packages, library, character.only = TRUE)
 
 # make a Quantile Quantile plot, with two types of points
@@ -23,18 +23,32 @@ make_qq <- function(pvals, main = "QQ plot"){
 # make the full summary plot with two QQs and one MH
 make_summary_plot <- function(data, pval_col = "pval", alt_frq_col = "freq", chr_col = "chr", pos_col = "pos"){  
   make_qq(data[[pval_col]], main = " ")
-  legend('topleft',c(paste0('ALL ',lam.new(data[[pval_col]]))),col=c("#000000"), pch=c(21), bty = 'n')
-  make_qq_frq(data[data[[alt_frq_col]] >= 0.01,][[pval_col]], data[data[[alt_frq_col]] < 0.01,][[pval_col]], main = " ")
-  legend('topleft', c(paste0('MAF >= 1%  ', lam.new(data[data[[alt_frq_col]] >= 0.01,][[pval_col]])), paste0('MAF < 1%  ', lam.new(data[data[[alt_frq_col]] < 0.01,][[pval_col]]))), col = c("#E69F00", "#56B4E9"), pch = c(21,21), pt.bg = c("#E69F00", "#56B4E9"), , bty = 'n')
+  legend(x = 'topleft', y = 'topleft', bquote(lambda == .(lam.new(data[[pval_col]]))),col = "#000000", pch = 21, pt.bg = "#000000", bty = 'n', cex = 1.2)
+  
+  maf.g <- data[data[[alt_frq_col]] >= 0.01,][[pval_col]]
+  maf.l <- data[data[[alt_frq_col]] < 0.01,][[pval_col]]
+  make_qq_frq(maf.g, maf.l, main = " ")
+  legend(x = 'topleft', 
+         y = 'topleft', 
+         c(as.expression(bquote(lambda[AF<1] == .(lam.new(maf.l)))), as.expression(bquote(lambda[AF>=1] == .(lam.new(maf.g))))),
+         col = c("#E69F00", "#56B4E9"), 
+         pch = c(21,21), 
+         pt.bg = c("#E69F00", "#56B4E9"), 
+         cex = 1.2, 
+         bty = 'n')
+  
   manhattan(data, chr = chr_col, bp = pos_col, p = pval_col, main = "All variants", suggestiveline = -log10(5e-5), genomewideline = -log10(5e-8))
 }
 
 # make a small summary plot with one qq and one mh
 make_small_summary_plot <- function(data, pval_col = "pval", alt_frq_col = "freq", chr_col = "chr", pos_col = "pos"){
   make_qq(data[[pval_col]], main = " ")
-  legend('topleft',c(paste0('ALL ',lam.new(data[[pval_col]]))),col=c("#000000"), pch=c(21), bty = 'n')
+  # legend('topleft',c(paste0('ALL ',lam.new(data[[pval_col]]))),col=c("#000000"), pch=c(21), bty = 'n')
+  legend(x = 'topleft', y = 'topleft', bquote(lambda == .(lam.new(data[[pval_col]]))),col=c("#000000"), pch=c(21), bty = 'n', cex = 1.2)
   manhattan(data, chr = chr_col, bp = pos_col, p = pval_col, main = "All variants", suggestiveline = -log10(5e-5), genomewideline = -log10(5e-8))
 }
+
+
 
 # Calculate genomic inflation
 lam.new <- function(x,p=.5){
@@ -52,39 +66,49 @@ assoc.files <- unlist(strsplit(input_args[3], ","))
 # Load result files and concat
 assoc <- do.call(rbind, lapply(assoc.files, fread, data.table = F, stringsAsFactors = F))
 
-# get right pval column
-pval <- names(assoc)[grep("pval",names(assoc))][1]
-
-# Make sure the columns are in the right format
-assoc$chr <- sub("^chr", "", as.character(assoc$chr))
-if (any(assoc$chr == "X")) assoc[assoc$chr == "X", "chr"] <- 23
-if (any(assoc$chr == "Y")) assoc[assoc$chr == "Y", "chr"] <- 24
-if (any(assoc$chr == "M")) assoc[assoc$chr == "M", "chr"] <- 25
-assoc$chr <- as.numeric(as.character(assoc$chr))
-assoc$pos <- as.numeric(as.character(assoc$pos))
-assoc$P <- as.numeric(as.character(assoc[,pval]))
-
-# Write out all results
-fwrite(assoc, paste0(results.file, ".all_variants.assoc.csv"), sep=",", row.names = F)
-
-# Write out the top results
-top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
-if (nrow(top.assoc) == 0){
+# stop if files are empty
+if (nrow(assoc) == 0){
+  fwrite(list(), paste0(results.file, ".all_variants.assoc.csv"), sep=",", row.names = F)
   fwrite(list(), paste0(results.file, ".top_variants.assoc.csv"), sep=",", row.names = F)
+  png(filename = paste0(results.file,".association.plots.png"), width = 1, height = 1, units = "in", res = 50, type = "cairo")
+  dev.off()
 } else {
-  fwrite(top.assoc, paste0(results.file, ".top_variants.assoc.csv"), sep=",", row.names = F)  
+  # get right pval column
+  pval <- names(assoc)[grep("pval",names(assoc))][1]
+  
+  # Make sure the columns are in the right format
+  assoc$chr <- sub("^chr", "", as.character(assoc$chr))
+  if (any(assoc$chr == "X")) assoc[assoc$chr == "X", "chr"] <- 23
+  if (any(assoc$chr == "Y")) assoc[assoc$chr == "Y", "chr"] <- 24
+  if (any(assoc$chr == "M")) assoc[assoc$chr == "M", "chr"] <- 25
+  assoc$chr <- as.numeric(as.character(assoc$chr))
+  assoc$pos <- as.numeric(as.character(assoc$pos))
+  assoc$P <- as.numeric(as.character(assoc[,pval]))
+  
+  # Write out all results
+  fwrite(assoc, paste0(results.file, ".all_variants.assoc.csv"), sep=",", row.names = F)
+  
+  # Write out the top results
+  top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
+  if (nrow(top.assoc) == 0){
+    fwrite(list(), paste0(results.file, ".top_variants.assoc.csv"), sep=",", row.names = F)
+  } else {
+    fwrite(top.assoc, paste0(results.file, ".top_variants.assoc.csv"), sep=",", row.names = F)  
+  }
+  
+  # Generate summary plots
+  if (any(assoc$freq < 0.01)) {
+    png(filename = paste0(results.file,".association.plots.png"), width = 8, height = 8, units = "in", res = 400, type = "cairo")
+    layout(matrix(c(1,2,3,3),nrow=2,byrow = T))
+    make_summary_plot(assoc, pval_col = "P")
+    dev.off()
+  } else {
+    png(filename = paste0(results.file,".association.plots.png"), width = 12, height = 4, units = "in", res = 400, type = "cairo")
+    layout(matrix(c(1,2,2),nrow=1,byrow = T))
+    make_small_summary_plot(assoc, pval_col = "P")
+    dev.off()
+  }
 }
 
-# Generate summary plots
-if (any(assoc$freq < 0.01)) {
-  png(filename = paste0(results.file,".association.plots.png"), width = 8, height = 8, units = "in", res = 400, type = "cairo")
-  layout(matrix(c(1,2,3,3),nrow=2,byrow = T))
-  make_summary_plot(assoc, pval_col = "P")
-  dev.off()
-} else {
-  png(filename = paste0(results.file,".association.plots.png"), width = 12, height = 4, units = "in", res = 400, type = "cairo")
-  layout(matrix(c(1,2,2),nrow=1,byrow = T))
-  make_small_summary_plot(assoc, pval_col = "P")
-  dev.off()
-}
+
 
