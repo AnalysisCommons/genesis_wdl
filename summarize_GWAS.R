@@ -30,7 +30,7 @@ make_qq_frq_v2 <- function(data, pval_col){
       TRUE ~ 2
     )
     
-    ramwas::qqPlotFast(qq1, makelegend = F, col = qq1$col, cex = 0.5, lwd = 1.0, ci.level = NULL, axistep = axistep, xlab = "Expected", ylab = "Observed", yaxmax = ymax)
+    ramwas::qqPlotFast(qq1, makelegend = F, col = qq1$col, cex = 0.5, lwd = 1.0, ci.level = NULL, axistep = axistep, xlab = "Expected", ylab = "Observed", yaxmax = ymax+axistep)
     if (axistep > floor(qq1$xpvs[1])) axis(1, seq(0, qq1$xpvs[1], 2), lwd = 1.0);
     if (axistep > floor(qq1$ypvs[1])) axis(2, seq(0, qq1$ypvs[1], 2), lwd = 1.0);
     ramwas::qqPlotFast(qq2, newplot = F, makelegend = F, col = qq2$col, cex = 0.5, lwd = 1.0, ci.level = NULL)
@@ -43,7 +43,7 @@ make_qq_frq_v2 <- function(data, pval_col){
       ymax > 10 ~ 4,
       TRUE ~ 2
     )
-    ramwas::qqPlotFast(qq2, makelegend = F, col = qq2$col, cex = 0.5, lwd = 1.0, ci.level = NULL, axistep = axistep, xlab = "Expected", ylab = "Observed", yaxmax = ymax)
+    ramwas::qqPlotFast(qq2, makelegend = F, col = qq2$col, cex = 0.5, lwd = 1.0, ci.level = NULL, axistep = axistep, xlab = "Expected", ylab = "Observed", yaxmax = ymax+axistep)
     if (axistep > floor(qq2$xpvs[1])) axis(1, seq(0, qq2$xpvs[1], 2), lwd = 1.0);
     if (axistep > floor(qq2$ypvs[1])) axis(2, seq(0, qq2$ypvs[1], 2), lwd = 1.0);
     ramwas::qqPlotFast(qq1, newplot = F, makelegend = F, col = qq1$col, cex = 0.5, lwd = 1.0, ci.level = NULL)
@@ -78,7 +78,7 @@ make_qq_v2 <- function(data, pval_col){
     ymax > 10 ~ 4,
     TRUE ~ 2
   )
-  ramwas::qqPlotFast(qq, makelegend = F, col = qq$col, cex = 0.5, lwd = 1.0, ci.level = NULL, axistep = axistep, xlab = "Expected", ylab = "Observed", yaxmax = ymax)
+  ramwas::qqPlotFast(qq, makelegend = F, col = qq$col, cex = 0.5, lwd = 1.0, ci.level = NULL, axistep = axistep, xlab = "Expected", ylab = "Observed", yaxmax = ymax+axistep)
   if (axistep > floor(qq$xpvs[1])) axis(1, seq(0, qq$xpvs[1], 2), lwd = 1.0);
   if (axistep > floor(qq$ypvs[1])) axis(2, seq(0, qq$ypvs[1], 2), lwd = 1.0);
   legend(x = 'topleft',
@@ -105,7 +105,7 @@ make_manhattan <- function(data, pval_col){
     ymax > 10 ~ 4,
     TRUE ~ 2
   )
-  ramwas::manPlotFast(man, colorSet = c('#474747',"#8f8f8f"), lwd = 1, axistep = axistep, cex = 0.8, yaxmax = ymax)
+  ramwas::manPlotFast(man, colorSet = c('#474747',"#8f8f8f"), lwd = 1, axistep = axistep, cex = 0.8, yaxmax = ymax+axistep)
   if (ymax > 7) abline(h = -log(5e-8), col = 'red', lty = 2)
   if (ymax > 4) abline(h = -log(5e-5), col = 'blue', lty = 2)
 }
