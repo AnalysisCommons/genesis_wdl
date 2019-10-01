@@ -1,6 +1,9 @@
 # install/load packages
 library(data.table)
 
+# fix a unicode error
+Sys.setlocale(category = "LC_ALL","C.UTF-8")
+
 # make a Quantile Quantile plot, with two types of points
 make_qq_frq <- function(pvals1, pvals2, main = "QQ plot"){
   pvals1 <- sort(-log10(pvals1[pvals1 > 0]))
