@@ -202,6 +202,9 @@ if (nrow(assoc) == 0){
   assoc$pos <- as.numeric(as.character(assoc$pos))
   assoc$P <- as.numeric(as.character(assoc[,pval]))
   
+  # sort by chromosome and position
+  assoc <- assoc[order(assoc$chr, assoc$pos),]
+  
   # Write out the top results
   top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
   
