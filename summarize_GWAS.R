@@ -193,38 +193,47 @@ if (nrow(assoc) == 0){
   # get right pval column
   pval <- names(assoc)[grep("pval",names(assoc))][1]
   
-  # Make sure the columns are in the right format
-  assoc$chr <- sub("^chr", "", as.character(assoc$chr))
-  if (any(assoc$chr == "X")) assoc[assoc$chr == "X", "chr"] <- 23
-  if (any(assoc$chr == "Y")) assoc[assoc$chr == "Y", "chr"] <- 24
-  if (any(assoc$chr == "M")) assoc[assoc$chr == "M", "chr"] <- 25
-  assoc$chr <- as.numeric(as.character(assoc$chr))
-  assoc$pos <- as.numeric(as.character(assoc$pos))
-  assoc$P <- as.numeric(as.character(assoc[,pval]))
-  
-  # sort by chromosome and position
-  assoc <- assoc[order(assoc$chr, assoc$pos),]
-  
-  # Write out the top results
-  top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
-  
-  # Write out all results
-  write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
-  write_table(top.assoc, paste0(results.file, ".top_variants.assoc.csv"))
-  
-  # Generate summary plots
-  if (any(assoc$freq < 0.01)) {
-    png(filename = paste0(results.file,".association.plots.png"), width = 8, height = 8, units = "in", res = 400, type = "cairo")
-    layout(matrix(c(1,2,3,3),nrow=2,byrow = T))
-    # make_summary_plot(assoc, pval_col = "P")
-    make_summary_plot_v2(assoc, pval_col = "P")
-    dev.off()
-  } else {
-    png(filename = paste0(results.file,".association.plots.png"), width = 12, height = 4, units = "in", res = 400, type = "cairo")
-    layout(matrix(c(1,2,2),nrow=1,byrow = T))
-    # make_small_summary_plot(assoc, pval_col = "P")
-    make_small_summary_plot_v2(assoc, pval_col = "P")
-    dev.off()
+  # single variant tests:
+  if ("chr" %in% names(assoc)){
+    # Make sure the columns are in the right format
+    assoc$chr <- sub("^chr", "", as.character(assoc$chr))
+    if (any(assoc$chr == "X")) assoc[assoc$chr == "X", "chr"] <- 23
+    if (any(assoc$chr == "Y")) assoc[assoc$chr == "Y", "chr"] <- 24
+    if (any(assoc$chr == "M")) assoc[assoc$chr == "M", "chr"] <- 25
+    assoc$chr <- as.numeric(as.character(assoc$chr))
+    assoc$pos <- as.numeric(as.character(assoc$pos))
+    assoc$P <- as.numeric(as.character(assoc[,pval]))
+    
+    # sort by chromosome and position
+    assoc <- assoc[order(assoc$chr, assoc$pos),]
+    
+    # Write out the top results
+    top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
+    
+    # Write out all results
+    write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
+    write_table(top.assoc, paste0(results.file, ".top_variants.assoc.csv"))
+    
+    # Generate summary plots
+    if (any(assoc$freq < 0.01)) {
+      png(filename = paste0(results.file,".association.plots.png"), width = 8, height = 8, units = "in", res = 400, type = "cairo")
+      layout(matrix(c(1,2,3,3),nrow=2,byrow = T))
+      # make_summary_plot(assoc, pval_col = "P")
+      make_summary_plot_v2(assoc, pval_col = "P")
+      dev.off()
+    } else {
+      png(filename = paste0(results.file,".association.plots.png"), width = 12, height = 4, units = "in", res = 400, type = "cairo")
+      layout(matrix(c(1,2,2),nrow=1,byrow = T))
+      # make_small_summary_plot(assoc, pval_col = "P")
+      make_small_summary_plot_v2(assoc, pval_col = "P")
+      dev.off()
+    }
+  } else { # multi variant tests
+    top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
+    write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
+    write_table(top.assoc, paste0(results.file, ".top_variants.assoc.csv"))  
+    
+    file.create(paste0(results.file,".association.plots.png"))
   }
 }
 
