@@ -14,22 +14,31 @@ task genesis_tests {
 	File genotype_file
 	File null_model
 	String results_file
+	String? genome_build
+	String? pass_only
+	String? imputed
+	Int? neig
+	Float? ntrace
+	String? interaction
+	String? return_variants
+
 
 	Int memory
 	Int disk
 
 	command {
-		R --vanilla --args ${default="NONE" agg_file} ${default="1" top_maf} ${default="Score" test_stat} ${test_type} ${default="5" min_mac} ${default="FALSE" weights} ${default="FALSE" weights_col} ${default="30" user_cores} ${default="0" window} ${default="0" step} ${genotype_file} ${null_model} ${results_file} < /genesis_wdl/genesis_tests.R
+		R --vanilla --args ${default="NONE" agg_file} ${default="1" top_maf} ${default="Score" test_stat} ${test_type} ${default="5" min_mac} ${default="FALSE" weights} ${default="FALSE" weights_col} ${default="30" user_cores} ${default="0" window} ${default="0" step} ${genotype_file} ${null_model} ${results_file} ${default="hg38" genom_build} ${default="T" pass_only} ${default="F" imputed} ${default="200" neig} ${default="500" ntrace} ${default="NA" interaction} ${default="F" return_variants} < /genesis_wdl/genesis_tests.R
 	}
 
 	runtime {
-		docker: "analysiscommon/genesis_wdl:v0.1"
+		docker: "analysiscommon/genesis_wdl:v1_4_1"
 		disks: "local-disk ${disk} SSD"
 		memory: "${memory} GB"
 	}
 
 	output {
 		File results = select_first(glob("*.gz"))
+		File varresults = select_first(glob("*.Rdata"))
 	}
 }
 
@@ -49,6 +58,15 @@ workflow genesis_tests_wf {
 	Array[File] these_genotype_files
 	File this_null_model
 	String this_results_file
+
+	String? this_genome_build
+	String? this_pass_only
+	String? this_imputed
+	Int? this_neig
+	Float? this_ntrace
+	String? this_interaction
+	String? this_return_variants
+
 
 	Int this_memory
 	Int this_disk
@@ -76,6 +94,13 @@ workflow genesis_tests_wf {
 		these_genotype_files: "name: genotypefile, class: array[file], patterns: [*.gds, *.GDS], optional: false"
 		this_null_model: "name: null_model, class: file, patterns: [*.Rda, *.Rdata], optional: false"
 		this_results_file: "name: outputfilename, label: prefix for output file name, no spaces, class: string, optional: false"
+		this_genome_build: "name: genome_build, help: hg38 or hg19, class: string, optional: true, default: hg38"
+		this_pass_only: "name: pass_only, help: Filter variants to those with a PASS flag: TRUE or FALSE, class: string, optional: true, default: TRUE"
+		this_imputed: "name: imputed, help: Input data is imputed: TRUE or FALSE, class: string, optional: true, default: FALSE"
+		this_neig: "name: neig, help: The number eigenvalues to approximate by using random projections for calculating p-values with fastSKAT, class: int, optional: true, default: 200"
+		this_ntrace: "name: ntrace, help: The number of vectors to sample when using random projections to estimate the trace needed for p-value calculation with fastSKAT, class: int, optional: true, default: 500"
+		this_interaction: "name: interaction, help: character string specifying the name of the variables for which a genotype interaction term should be included.  Single variant only, class: string, optional: true, default: NULL"
+		this_return_variants: "name: return_variants, help: Returns single snp results for each aggregate test, class: string, optional: true, default: FALSE"
 		this_memory: "help: memory desired for computation in GB, class: int, optional: false"
 		this_disk: "help: disk space desired for computation in GB, class:int, optional: false"
 	}
@@ -96,6 +121,13 @@ workflow genesis_tests_wf {
 				genotype_file = this_genotype_file,
 				null_model = this_null_model,
 				results_file = this_results_file,
+				genome_build = this_genome_build,
+				pass_only = this_pass_only,
+				imputed = this_imputed,
+				neig = this_neig,
+				ntrace = this_ntrace,
+				interaction = this_interaction,
+				return_variants = this_return_variants,
 				memory = this_memory,
 				disk = this_disk
 
@@ -104,5 +136,6 @@ workflow genesis_tests_wf {
 
 	output {
         Array[File] result = genesis_tests.results
+        Array[File] varresult = genesis_tests.varresults
     }
 }

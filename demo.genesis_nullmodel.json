@@ -9,6 +9,6 @@
   "genesis_nullmodel_wf.this_outcome_type": "Dichotomous",
   "genesis_nullmodel_wf.this_pheno_id": "sample_id",
   "genesis_nullmodel_wf.this_memory": 10,
-  "genesis_nullmodel_wf.these_genotype_files": "inputs/1KG_phase3_subset.gds"
+  "genesis_nullmodel_wf.these_genotype_files": ["inputs/1KG_phase3_subset.gds"]
 }
 
