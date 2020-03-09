@@ -23,7 +23,7 @@ neig = as.numeric(args[17])
 ntrace = as.numeric(args[18])
 interaction = args[19]
 # interaction = ifelse(args[19] == "NA", NULL, args[19])
-return_variants = ifelse(tolower(args[20]) == "F", F, T)
+return_variants = ifelse(tolower(args[20]) == "f", F, T)
 
 
 if (toupper(interaction) == 'NULL') interaction = NULL
@@ -39,16 +39,22 @@ cat('varaggfile',agg.file,'\n')
 cat('top.maf',top.maf,'\n')
 cat('test.stat',test.stat,'\n')
 cat('test.type',test.type,'\n')
+cat('min.mac',min.mac,'\n')
+cat('weights',weights,'\n')
 cat('weights.col',weights.col,'\n')
+cat('user_cores',user_cores,'\n')
 cat('window',window,'\n')
 cat('step',step,'\n')
+cat('genotype.file',genotype.file,'\n')
+cat('null.model',null.model,'\n')
+cat('results.file',results.file,'\n')
 cat('genome_build ',genome_build,'\n')
 cat('pass_only ',pass_only,'\n')
 cat('imputed ',imputed,'\n')
-cat('interaction ',!is.null(interaction), interaction,'\n')
-
 cat('neig ',neig,'\n')
 cat('ntrace ', ntrace,'\n')
+cat('interaction ',!is.null(interaction), interaction,'\n')
+cat('return_variants ', return_variants,'\n')
 
 if (!(test.stat %in% test.stat.vals)){
      msg = paste("The requested test statistic:", test.stat, "is not available Use Single, Burden, SKAT, fastSKAT, SMMAT or SKATO")
