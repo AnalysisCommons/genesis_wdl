@@ -14,15 +14,13 @@ pheno.id <- args[8]
 
 
 # added these to JSON
-test.stat <-  args[9] # Score, Wald, Firth
-conditional <- args[10] # 1:237733935:G:A
-het_varsIn <-  args[11]
+conditional <- args[9] # 1:237733935:G:A
+het_varsIn <-  args[10]
+transform <-  args[11]
+transform.rankNorm <-  args[12]
+transform.rescale <-  args[13]
 
 
-
-# GLOBAL VARIABLES
-collapsing.tests <- c("SKAT",  "Burden")
-test.stat.vals <- c("Score", "Wald", "Firth")
 
 GetFamilyDistribution <- function(response.type) {
                if (response.type == "Continuous"){
@@ -51,16 +49,16 @@ GetKinshipMatrix <- function(kinship.matrix){
 }
 
 cat('kinship.matrix',kinship.matrix,'\n')
-cat('test.stat',test.stat,'\n')
+cat('outcome.name',outcome.name,'\n')
+cat('covariate.string',covariate.string,'\n')
 cat('outcome.type',outcome.type,'\n')
 cat('het_vars',het_varsIn,'\n')
 cat('conditional',conditional,'\n')
+cat('pheno.id',pheno.id,'\n')
+cat('transform',transform,'\n')
+cat('transform.rankNorm',transform.rankNorm,'\n')
+cat('transform.rescale',transform.rescale,'\n')
 
-
-if (!(test.stat %in% test.stat.vals)){
-     msg = paste("The requested test statistic:", test.stat, "is not available (Use Firth, Score, Wald!")
-     stop(msg)
-}
 
 .libPaths()
 
@@ -90,6 +88,10 @@ cat('all terms:', paste(unique(c(outcome.name, covariates, het_varsIn)), collaps
  
 ## phenotype 
 phenotype.data <- read.csv(pheno.file, header=TRUE, as.is=TRUE)
+
+if(!transform %in% c('none','transform')){
+  stop(paste0('transform must be "none" or "transform", got value ',transform))
+}
 
 # add sex if provided, needed for X chrom MAF calcs
 if( 'sex' %in% names(phenotype.data)){
@@ -132,32 +134,19 @@ if (NROW(dropped.ids) != 0 ) {
 }
 
 # For GDS files
-##f <- seqOpen('genotypefile')
-#AAsample.ids <- seqGetData(f, "sample.id")
 all.terms <- unique(c(outcome.name, covariates, het_vars,gcol))
-#AApheno <- pheno[row.names(pheno) %in% sample.ids,na.omit(all.terms),drop=F]
 cat('Output pheno after mergeing with Genos N=',nrow(pheno),'\n')
 if(nrow(pheno) == 0){
     msg = paste("Phenotype ID column doesn't match IDs in GDS")
     stop(msg)
 }
 
-
-#subset to phenotyped samples
-#AAseqSetFilter(f,sample.id = row.names(pheno))
-
-# order pheno to the GDS subject order
-#AAssample.ids <- seqGetData(f, "sample.id")
-#AAspheno <- pheno[match(sample.ids,row.names(pheno)),,drop=F]
-
-
-
 ## Conditional analaysis
 if(conditional != 'NA'){
     
     f <- seqOpen(genotype.file)
     sample.ids <- seqGetData(f, "sample.id")
-    pheno <- pheno[match(sample.ids,row.names(pheno)),,drop=F]
+    # pheno <- pheno[match(sample.ids,row.names(pheno)),,drop=F]
     cond_snps = strsplit(conditional,',')[[1]] 
     cond_snps = gsub(' ','',cond_snps)
     cond_snps = gsub('"','',cond_snps)
@@ -180,11 +169,14 @@ if(conditional != 'NA'){
 
     
     if(any(cidx)){
-        seqSetFilter(f,variant.sel=cidx, sample.id = row.names(pheno),verbose=FALSE)
+        seqSetFilter(f,variant.sel=cidx, sample.id = row.names(pheno),verbose=TRUE)
         ncol = NCOL(pheno)
-        pheno = cbind(pheno,as.data.frame(altDosage(f,  use.names=FALSE)))
-        condheaders  = paste0('csnp',1:NCOND)
-        colnames(pheno)[(ncol+1):(ncol+NCOND)] = condheaders
+        cdoses = as.data.frame(altDosage(f,  use.names=TRUE)) 
+        condheaders = paste0('csnp',1:NCOND)
+        names(cdoses)  = condheaders
+        pheno = merge(pheno,cdoses,by='row.names')
+        row.names(pheno) = pheno$Row.names
+        pheno = pheno[,names(pheno) != 'Row.names']
     }else{
         stop('Can not find snp ',conditional,' with position ',cpos,' to condition on in data file')
     }
@@ -206,25 +198,26 @@ if(conditional != 'NA'){
 
 ## Load KINSHIP matrix
 ## Kinship doesn't contain all samples
+kinship.files = list()
 if(kinship.matrix != 'NO_KINSHIP_FILE'){
-    kmatr = GetKinshipMatrix(kinship.matrix)
-    pheno = pheno[row.names(pheno) %in% row.names(kmatr),,drop=F]
-    kmatr = kmatr[row.names(kmatr) %in% row.names(pheno),colnames(kmatr) %in% row.names(pheno)]
-    cat('Output pheno in Kinship N=',nrow(pheno),'\n')
-    kmatr = kmatr[match(row.names(pheno),row.names(kmatr)),match(row.names(pheno),colnames(kmatr))]
-    if(nrow(pheno) == 0){
-        msg = paste("Phenotype ID column doesn't match IDs in Kinship Matrix")
-        stop(msg)
+    i = 0
+    for(kfile in kinship.matrix){
+        i = i+1
+        kmatr = GetKinshipMatrix(kfile)
+        pheno = pheno[row.names(pheno) %in% row.names(kmatr),,drop=F]
+        kmatr = kmatr[row.names(kmatr) %in% row.names(pheno),colnames(kmatr) %in% row.names(pheno)]
+        cat('Output pheno in Kinship N=',nrow(pheno),'\n')
+        kmatr = kmatr[match(row.names(pheno),row.names(kmatr)),match(row.names(pheno),colnames(kmatr))]
+        if(nrow(pheno) == 0){
+            msg = paste("Phenotype ID column doesn't match IDs in Kinship Matrix")
+            stop(msg)
+        }
+        if (!(identical(row.names(kmatr),row.names(pheno)))){
+            stop("Something is off problem with re-ordering")
+        }
+        kinship.files[[i]]  =  kmatr
     }
-    if (!(identical(row.names(kmatr),row.names(pheno)))){
-        stop("Something is off problem with re-ordering")
-    }
-    ## Get sample ids to check order 
-    #AAseqSetFilter(f,sample.id = row.names(pheno))
-    #AAsample.ids <- seqGetData(f, "sample.id")
-    #AAif (!(identical(sample.ids,row.names(pheno)) && identical(row.names(kmatr),row.names(pheno)))){
-    #AA    stop("Something is off problem with re-ordering")
-    #AA}
+    
 } else {
   kmatr <- NULL
 }
@@ -234,34 +227,29 @@ if(kinship.matrix != 'NO_KINSHIP_FILE'){
 ###################
 ## NULL MODEL
 ##################
-print(class(kmatr))
 
 ## pheno does not need to be the same order as kmatr, but must have same dims at kmatr
 cat('start fit....\n')
-if (kinship.matrix == 'NO_KINSHIP_FILE'){
-  cat('Fitting unrelated model')
-  nullmod <- fitNullModel(pheno,
-                        covars = covariates,
-                     outcome = outcome.name,
-                     family = GetFamilyDistribution(outcome.type))
-}else{
-#  kmatr = as.matrix(kmatr)
-  if(het_varsIn == 'NA'){
-      cat('Fitting model with GRM ... \n')
-      nullmod <- fitNullModel(pheno,
-                        covars = covariates,
-                     outcome = outcome.name,
-                     family = GetFamilyDistribution(outcome.type),
-                     cov.mat = kmatr)
-  }else{
 
-      cat('Fitting model with GRM and  het vars ...\n')
-      nullmod <- fitNullModel(pheno,
+if (kinship.matrix == 'NO_KINSHIP_FILE'){
+    kinship.files = NULL
+}
+  
+if(het_varsIn == 'NA'){
+    het_vars = NULL
+}
+
+cat('Fitting model with GRM and  het vars ...\n')
+nullmod <- fitNullModel(pheno,
                         covars = covariates,
-                     outcome = outcome.name,
-                     group.var = het_vars,
-                     family = GetFamilyDistribution(outcome.type),
-                     cov.mat = kmatr)
-      }
+                        outcome = outcome.name,
+                        group.var = het_vars,
+                        family = GetFamilyDistribution(outcome.type),
+                        cov.mat = kinship.files)
+if(transform != 'none'){
+  cat('Updating Null Model ...\n')
+  nullmod <- nullModelInvNorm(nullmod,
+                        cov.mat = kinship.files,norm.option = transform.rankNorm, rescale = transform.rescale)
+
 }
 save(nullmod,pheno,file= paste0(results.file, '.RData'))
