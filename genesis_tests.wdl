@@ -27,7 +27,7 @@ task genesis_tests {
 	Int disk
 
 	command {
-		R --vanilla --args ${default="NONE" agg_file} ${default="1" top_maf} ${default="Score" test_stat} ${test_type} ${default="5" min_mac} ${default="FALSE" weights} ${default="FALSE" weights_col} ${default="30" user_cores} ${default="0" window} ${default="0" step} ${genotype_file} ${null_model} ${results_file} ${default="hg38" genom_build} ${default="T" pass_only} ${default="F" imputed} ${default="200" neig} ${default="500" ntrace} ${default="NA" interaction} ${default="F" return_variants} < /genesis_wdl/genesis_tests.R
+		R --vanilla --args ${default="NONE" agg_file} ${default="1" top_maf} ${default="Score" test_stat} ${test_type} ${default="5" min_mac} ${default="FALSE" weights} ${default="FALSE" weights_col} ${default="30" user_cores} ${default="0" window} ${default="0" step} ${genotype_file} ${null_model} ${results_file} ${default="hg38" genome_build} ${default="T" pass_only} ${default="F" imputed} ${default="200" neig} ${default="500" ntrace} ${default="NA" interaction} ${default="F" return_variants} < /genesis_wdl/genesis_tests.R
 	}
 
 	runtime {

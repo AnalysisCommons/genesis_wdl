@@ -7,21 +7,23 @@ task genesis_nullmodel {
 	String results_file
 	File? kinship_matrix
 	String? pheno_id
-	String? test_stat
 	String? conditional
 	String? het_varsIn
+	String? transform 
+	String? transform_rankNorm
+	String? transform_rescale
 
-	Int? memory
-	Int? disk
+	Int memory
+	Int disk
 
 	command {
-		R --vanilla --args ${outcome_name} ${default="Continuous" outcome_type} ${default="NA" covariates_string} ${pheno_file} ${genotype_file} ${results_file} ${default="NO_KINSHIP_FILE" kinship_matrix} ${default="ID" pheno_id} ${default="Score" test_stat} ${default="NA" conditional} ${default="NA" het_varsIn} < /genesis_wdl/genesis_nullmodel.R
+		R --vanilla --args ${outcome_name} ${default="Continuous" outcome_type} ${default="NA" covariates_string} ${pheno_file} ${genotype_file} ${results_file} ${default="NO_KINSHIP_FILE" kinship_matrix} ${default="ID" pheno_id} ${default="NA" conditional} ${default="NA" het_varsIn} ${default="none" transform} ${default="all" transform_rankNorm} ${default="none" transform_rescale} < /genesis_wdl/genesis_nullmodel.R
 	}
 
 	runtime {
-		docker: "analysiscommon/genesis_wdl:v0.1"
-		disks: "local-disk " + select_first([disk,"100"]) + " HDD"
-		memory: select_first([memory,"30"]) + " GB"
+		docker: "analysiscommon/genesis_wdl:v1_4_1"
+		disks: "local-disk ${disk} HDD"
+		memory: "${memory} GB"
 	}
 
 	output {
@@ -45,22 +47,31 @@ task genesis_tests {
 	File genotype_file
 	File null_model
 	String results_file
+	String? genome_build
+	String? pass_only
+	String? imputed
+	Int? neig
+	Float? ntrace
+	String? interaction
+	String? return_variants
 
-	Int? memory
-	Int? disk
+
+	Int memory
+	Int disk
 
 	command {
-		R --vanilla --args ${default="NONE" agg_file} ${default="1" top_maf} ${default="Score" test_stat} ${test_type} ${default="5" min_mac} ${default="FALSE" weights} ${default="FALSE" weights_col} ${default="30" user_cores} ${default="0" window} ${default="0" step} ${genotype_file} ${null_model} ${results_file} < /genesis_wdl/genesis_tests.R
+		R --vanilla --args ${default="NONE" agg_file} ${default="1" top_maf} ${default="Score" test_stat} ${test_type} ${default="5" min_mac} ${default="FALSE" weights} ${default="FALSE" weights_col} ${default="30" user_cores} ${default="0" window} ${default="0" step} ${genotype_file} ${null_model} ${results_file} ${default="hg38" genome_build} ${default="T" pass_only} ${default="F" imputed} ${default="200" neig} ${default="500" ntrace} ${default="NA" interaction} ${default="F" return_variants} < /genesis_wdl/genesis_tests.R
 	}
 
 	runtime {
-		docker: "analysiscommon/genesis_wdl:v0.1"
-		disks: "local-disk " + select_first([disk,"100"]) + " HDD"
-		memory: select_first([memory,"30"]) + " GB"
+		docker: "analysiscommon/genesis_wdl:v1_4_1"
+		disks: "local-disk ${disk} SSD"
+		memory: "${memory} GB"
 	}
 
 	output {
 		File results = select_first(glob("*.gz"))
+		File varresults = select_first(glob("*.Rdata"))
 	}
 }
 
@@ -100,15 +111,18 @@ workflow genesis_gwas_wf {
 	String this_results_file
 	File? this_kinship_matrix
 	String? this_pheno_id
-	String? this_test_stat
 	String? this_conditional
 	String? this_het_varsIn
+	String? this_transform 
+	String? this_transform_rankNorm
+	String? this_transform_rescale
 	Int? this_nullmodel_memory
 	Int? this_nullmodel_disk
 
 	# association test inputs
 	File? this_agg_file
 	Float? this_top_maf
+	String? this_test_stat
 	String this_test_type
 	Int? this_min_mac
 	String? this_weights
@@ -116,6 +130,13 @@ workflow genesis_gwas_wf {
 	Float? this_user_cores
 	Float? this_window
 	Float? this_step
+	String? this_genome_build
+	String? this_pass_only
+	String? this_imputed
+	Int? this_neig
+	Float? this_ntrace
+	String? this_interaction
+	String? this_return_variants
 	Int? this_tests_memory
 	Int? this_tests_disk
 
@@ -143,9 +164,11 @@ workflow genesis_gwas_wf {
 		this_results_file: "name: outputfilename, label: prefix for output file name, no spaces, class: string, optional: false"
 		this_kinship_matrix: "name: kinshipmatrix, label: kinship matrix with sample ids as the row and column names.  Matricies saved as Rda will load faster, but csv is accepted as well. Rda files should contain a single numeric matrix object., class: file,patterns: [*.Rda, *.csv], optional: true"
 		this_pheno_id: "name: pheno_id, help: Column name that contains the sample IDs.  These IDs should match the genotype file IDs and the kinship file IDs., class: string, default: ID"
-		this_test_stat: "name: test_stat, help: Valid tests statistic types are: Score, Wald. Firth can be used with Burden test only. , class: string, optional: true, default: Score"
 		this_conditional: "name: conditional, help: chr pos ref alt format for the SNP that will be added to the model.  Multiple snps in a comma delimited list can be added. (e.g. '22:16425814:C:T' or '22:16425814:C:T,22:17808063:TA:T,22:18096610:G:T'), class: string, optional: true, default: NA"
 		this_het_varsIn: "name: het_vars, help: grouping variable for heterogenous variances, class: string, optional: true, default: NA"
+		this_transform: "name: transform, label: flag for transforming, help: rank-normalize residuals and scale, and re-fit null model, class: string, optional: true, default: none"
+		this_transform_rankNorm: "name:transform_rankNorm, label: transform within het_vars groups or all samples together ( e.g. rankNorm.option in updateNullModOutcome()), only used in conjuntion with 'transform', options are by.group or all, class: string, optional: true, default: all"
+		this_transform_rescale: "name: transform_rescale, label: rescale residules  ( e.g. rescale.option in updateNullModOutcome() ) options are none, model, residSD.  Only used in conjuntion with 'transform', class: string, optional: true, default: none"
 		this_nullmodel_memory: "help: memory desired for computation in GB, class: int, optional: true, default: 30"
 		this_nullmodel_disk: "help: disk space desired for computation in GB, class:int, optional: true, default: 100"
 		this_agg_file: "name: varaggfile, help: File contains lists of variants that should be aggregated into groups.  Can also be used to filter variants in sliding window or single variant tests, or topass a variant weight column. File should be a CSV file with the headers: group_id, chromosome, position, ref and alt.  All variants for with the same group_idwill be combined into a single aggregate tests.  , class: file,patterns: [*.csv, *.rda, *.rdata, *.Rda, *.Rdata], optional: true"
@@ -158,6 +181,13 @@ workflow genesis_gwas_wf {
 		this_user_cores: "name: user_cores, class: int, optional: true, default: 30"
 		this_window: "name: window, help: Runs a sliding window test based on this window size, in bp, class: int, optional: true, default: 0"
 		this_step: "name: step, help: For use with 'window', indicates sliding window step size, in bp, class: int, optional: true, default: 0"
+		this_genome_build: "name: genome_build, help: hg38 or hg19, class: string, optional: true, default: hg38"
+		this_pass_only: "name: pass_only, help: Filter variants to those with a PASS flag: TRUE or FALSE, class: string, optional: true, default: TRUE"
+		this_imputed: "name: imputed, help: Input data is imputed: TRUE or FALSE, class: string, optional: true, default: FALSE"
+		this_neig: "name: neig, help: The number eigenvalues to approximate by using random projections for calculating p-values with fastSKAT, class: int, optional: true, default: 200"
+		this_ntrace: "name: ntrace, help: The number of vectors to sample when using random projections to estimate the trace needed for p-value calculation with fastSKAT, class: int, optional: true, default: 500"
+		this_interaction: "name: interaction, help: character string specifying the name of the variables for which a genotype interaction term should be included.  Single variant only, class: string, optional: true, default: NULL"
+		this_return_variants: "name: return_variants, help: Returns single snp results for each aggregate test, class: string, optional: true, default: FALSE"
 		this_tests_memory: "help: memory desired for computation in GB, class: int, optional: true, default: 30"
 		this_tests_disk: "help: disk space desired for computation in GB, class:int, optional: true, default: 100"
 		this_pval_threshold: "help: threshold over association p-value for generating top results table from the summarize task, class: float, optional: true, default: 0.0001"
@@ -175,9 +205,11 @@ workflow genesis_gwas_wf {
 			results_file = this_results_file,
 			kinship_matrix = this_kinship_matrix,
 			pheno_id = this_pheno_id,
-			test_stat = this_test_stat,
 			conditional = this_conditional,
 			het_varsIn = this_het_varsIn,
+			transform = this_transform,
+			transform_rankNorm = this_transform_rankNorm,
+			transform_rescale = this_transform_rescale,
 			memory = this_nullmodel_memory,
 			disk = this_nullmodel_disk
 	}
@@ -196,8 +228,15 @@ workflow genesis_gwas_wf {
 				window = this_window,
 				step = this_step,
 				genotype_file = this_genotype_file,
-				null_model = genesis_nullmodel.results,
+				null_model = this_null_model,
 				results_file = this_results_file,
+				genome_build = this_genome_build,
+				pass_only = this_pass_only,
+				imputed = this_imputed,
+				neig = this_neig,
+				ntrace = this_ntrace,
+				interaction = this_interaction,
+				return_variants = this_return_variants,
 				memory = this_tests_memory,
 				disk = this_tests_disk
 

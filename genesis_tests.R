@@ -394,5 +394,5 @@ if(return_variants){
 	write.csv(results, out, row.names=F)
 	close(out)
 	varres.save <- "Variant results not requested."
-	save(varres.save, varres.file)
+	save(varres.save, file = varresults.file)
 }
