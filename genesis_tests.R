@@ -21,11 +21,12 @@ pass_only = ifelse(tolower(args[15]) == "F", F, T)
 imputed = ifelse(tolower(args[16]) == "F", F, T)
 neig = as.numeric(args[17])
 ntrace = as.numeric(args[18])
-interaction = ifelse(args[19] == "NA", NULL, args[19])
+interaction = args[19]
+# interaction = ifelse(args[19] == "NA", NULL, args[19])
 return_variants = ifelse(tolower(args[20]) == "F", F, T)
 
 
-
+if (toupper(interaction) == 'NULL') interaction = NULL
 # GLOBAL VARIABLES
 collapsing.tests <- c("Burden", "SKAT", "fastSKAT", "SMMAT",  "SKATO")
 test.type.vals <- c("Single",collapsing.tests)
