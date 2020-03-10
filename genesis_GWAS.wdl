@@ -166,16 +166,16 @@ workflow genesis_gwas_wf {
 		this_pheno_id: "name: pheno_id, help: Column name that contains the sample IDs.  These IDs should match the genotype file IDs and the kinship file IDs., class: string, default: ID"
 		this_conditional: "name: conditional, help: chr pos ref alt format for the SNP that will be added to the model.  Multiple snps in a comma delimited list can be added. (e.g. '22:16425814:C:T' or '22:16425814:C:T,22:17808063:TA:T,22:18096610:G:T'), class: string, optional: true, default: NA"
 		this_het_varsIn: "name: het_vars, help: grouping variable for heterogenous variances, class: string, optional: true, default: NA"
-		this_transform: "name: transform, label: flag for transforming, help: rank-normalize residuals and scale, and re-fit null model, class: string, optional: true, default: none"
+		this_transform: "name: transform, label: rank-normalize residuals and scale, and re-fit null model. Options none or transform, class: string, optional: true, default: none"
 		this_transform_rankNorm: "name:transform_rankNorm, label: transform within het_vars groups or all samples together ( e.g. rankNorm.option in updateNullModOutcome()), only used in conjuntion with 'transform', options are by.group or all, class: string, optional: true, default: all"
 		this_transform_rescale: "name: transform_rescale, label: rescale residules  ( e.g. rescale.option in updateNullModOutcome() ) options are none, model, residSD.  Only used in conjuntion with 'transform', class: string, optional: true, default: none"
 		this_nullmodel_memory: "help: memory desired for computation in GB, class: int, optional: true, default: 30"
 		this_nullmodel_disk: "help: disk space desired for computation in GB, class:int, optional: true, default: 100"
-		this_agg_file: "name: varaggfile, help: File contains lists of variants that should be aggregated into groups.  Can also be used to filter variants in sliding window or single variant tests, or topass a variant weight column. File should be a CSV file with the headers: group_id, chromosome, position, ref and alt.  All variants for with the same group_idwill be combined into a single aggregate tests.  , class: file,patterns: [*.csv, *.rda, *.rdata, *.Rda, *.Rdata], optional: true"
+		this_agg_file: "name: varaggfile, help: File contains lists of variants that should be aggregated into groups.  Can also be used to filter variants in sliding window or single variant tests, or topass a variant weight column. File should be a CSV file with the headers: group_id, chromosome, position, ref and alt.  All variants for with the same group_idwill be combined into a single aggregate tests, class: file, patterns: [*.csv, *.rda, *.rdata, *.Rda, *.Rdata], optional: true"
 		this_top_maf: "name: top_maf, help: Maximim minor allele frequency ( generally used for aggregate tests ), class: float, optional: true, default: 1"
-		this_test_stat: "name: test_stat, help: Valid tests statistic types are: Score, Wald. Firth can be used with Burden test only. , class: string, optional: true, default: Score"
-		this_test_type: "name: test_type, help: Valid tests are one of the collapsing tests SKAT, Burden, SMMAT or Single, class: string, optional: false"
-		this_min_mac: "name: min_mac, help: Minimum minor allele count for threshold ( only used for single variant tests ), class: int, optional: true, default: 5"
+		this_test_stat: "name: test_stat, help: Valid tests statistic types are: Score and Score.SPA, class: string, optional: true, default: Score"
+		this_test_type: "name: test_type, help: Valid tests are one of the collapsing tests Burden, SKAT, fastSKAT, SMMAT,  SKATO or Single, class: string, optional: false"
+		this_min_mac: "name: min_mac, help: Minimum minor allele count for threshold, class: int, optional: true, default: 5"
 		this_weights: "name: weights, help: beta weights set to flat weights (e.g. set to 'c(1,25)' for Wu weights or 'c(0.5,0.5)' for Madsen-Browning weights), class: string, optional: true, default: FALSE"
 		this_weights_col: "name: weights_col, help: Name of column in aggfile that contains the variant weights, class: string, default: FALSE"
 		this_user_cores: "name: user_cores, class: int, optional: true, default: 30"
@@ -255,6 +255,7 @@ workflow genesis_gwas_wf {
 	output {
 		File null_model = genesis_nullmodel.results
         Array[File] raw_association_files = genesis_tests.results
+        Array[File] raw_association_varresults_files = genesis_tests.varresults
         File all_summary_statistics = summarize.all_results
         File top_summary_statistics = summarize.top_results
         File summary_plots = summarize.plots

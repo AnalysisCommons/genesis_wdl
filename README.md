@@ -1,6 +1,6 @@
 # GENESIS: Statistical methods for analyzing genetic data from samples
 Maintainer: Analysis Commons  
-Version: 0.1
+Version: 0.2
 
 ## Description:
 Runs single variant and aggregate test for genetic data. Implements Single-variant, Burden, SKAT and SMMAT tests for Continuous or Dichotomous outcomes. All tests may account for familial relatedness through kinship matrices. Underlying functions adapted from: Conomos MP and Thornton T (2016). GENESIS: GENetic EStimation and Inference in Structured samples (GENESIS): Statistical methods for analyzing genetic data from samples with population structure and/or relatedness. http://bioconductor.org/packages/devel/bioc/html/GENESIS.htmlhttps://github.com/smgogarten/GENESIS
@@ -22,40 +22,40 @@ This workflow uses the GENESIS package developed by Matt Conomos, Tim Thornton a
 
 ## Inputs
 
-### genesis_nullmodel
-
-- **this_outcome_name**: [string] Column name of outcome variable  
-- **this_outcome_type**: [string] Continuous or Dichotomous  
-- **this_covariate_list**: [string] Covariates Comma separated list that match column names in the phenotype file. Leave blank for no adjustments  
-- **this_pheno_file**: [file] Phenotypes for each sample in delimited text file  
-- **this_genotype_file**: [file] Genotypes Any chromosome of the dataset you are using. This is used to subset your phenotype to only the samples in the GDS data set. This is a GDS formatted genotype file    
-- **this_results_file**: [string] Output Name prefix for output file name, no spaces.  
-- **this_kinship_matrix**: [file] Kinship/GRM Kinship matrix with sample ids as the row and column names. Matrices save as R data will load faster, but csv is accepted as well. Matrix can contain pedigree or empirical kinship values  
-- **this_pheno_id**: [string] Sample ID Column name that contains the sample IDs. These IDs should match the genotype file IDs and the kinship file IDs.  
-- **this_test_stat**: [string] Valid tests statistic types are: Score, Wald, or Firth.
-- **this_conditional**: [string] chr:pos:ref:alt format for the SNP that will be added to the model. Multiple snps in a comma delimited list can be added. (e.g. '22:16425814:C:T' or '22:16425814:C:T,22:17808063:TA:T,22:18096610:G:T')  
-- **this_het_vars**: [string] Heterogenous Variances Fits model allowing for heterogeneous variances by group. Provide column name in phenotype file that defines the group.  
-- **this_disk**: [int] disk space in GB  
-- **this_memory**: [int] memory in GB  
-  
-
-## genesis_tests
-
-- **this_agg_file**: [file] Variant aggregation file CSV file listing which variants should be grouped together for aggregate tests (e.g. SKAT). The file contains 'group_id' ( window, gene etc.), 'chr' ('1' or 'chr1'), 'pos', 'ref' and 'alt'.  
-- **this_top_maf**: [float] Max MAF Maximum minor allele frequency ( generally used for aggregate tests )  
-- **this_test_stat**: [string] Valid tests statistic types are: Score, Wald and Firth  
-- **this_test_type**: [string] Test type Valid tests are one of the collapsing tests SKAT, SMMAT. Burden or Single  
-- **this_min_mac**: [int] Minimim MAC Minimum minor allele count for threshold ( only used for single variant tests )  
-- **this_weights**: Weights function Beta weights set to flat weights (e.g. set to 'c(1,1)' for unweighted, 'c(1,25)' for Wu weights or 'c(0.5,0.5)' for Madsen-Browning weights). Not used in single var analyses.  
-- **this_weights_col**: [string] Name of column in agg_file that contains the variant weights  
-- **this_user_cores**: [int] defaults to 2 less than the number of cores available. memory needed will depend on test configuration and sample size. if your analysis is terminating with an out-of-memory error, reduce the number of cores  
-- **this_window**: [int] window size for sliding window test  
-- **this_step**: [int] step size for sliding window test  
-- **these_genotype_files**: [file] Genotypes GDS formatted genotype files
-- **this_null_model**: [file] Null model object that is the output of genesis_nullmodel. The same null model can be used for single variant and aggregate tests.  
-- **this_results_file**: [string] Output Name prefix for output file name, no spaces  
-- **this_disk**: [int] disk space in GB  
-- **this_memory**: [int] memory in GB  
-
-
-
+-**this_outcome_name**: Column name of the outcome variable in the phenotype file \[string\]
+-**this_outcome_type**: Continuous or Dichotomous \[string\] \[optional: Continuous\]
+-**this_covariates_string**: Covariates, help: Comma separated list that match column names in the phenotype file. Leave blank for no adjustments \[string\] \[optional: \]
+-**this_pheno_file**: Phenotypes for each sample in delimited text file \[file\]
+-**these_genotype_files**: Genotypes stored in genomic data structure format, must only have a single chromosome in each file \[array\[file\]\] \[\*.gds, \*.GDS\]
+-**this_results_file**: Prefix for output file name, no spaces \[string\]
+-**this_kinship_matrix**: Kinship matrix with sample ids as the row and column names. Matricies saved as Rda will load faster, but csv is accepted as well. Rda files should contain a single numeric matrix object. \[file\] \[\*.Rda, \*.csv\] \[optional: \]
+-**this_pheno_id**: Column name that contains the sample IDs. These IDs should match the genotype file IDs and the kinship file IDs \[string\] \[optional: ID\]
+-**this_conditional**: Variants to condition on, chr pos ref alt format for the SNP that will be added to the model.  Multiple snps in a comma delimited list can be added. (e.g. '22:16425814:C:T' or '22:16425814:C:T,22:17808063:TA:T,22:18096610:G:T') \[string\] \[optional: NA\]
+-**this_het_varsIn**: Grouping variable for heterogenous variances \[string\] \[optional: NA\]
+-**this_transform**: Rank-normalize residuals and scale, and re-fit null model. Options none or transform \[string\] \[optional: none\]
+-**this_transform_rankNorm**: Transform within het_vars groups or all samples together (e.g. rankNorm.option in updateNullModOutcome()), only used in conjuntion with 'transform', options are by.group or all \[string\] \[optional: all\]
+-**this_transform_rescale**: Rescale residules  (e.g. rescale.option in updateNullModOutcome()) options are none, model, residSD.  Only used in conjuntion with 'transform' \[string\] \[optional: none\]
+-**this_nullmodel_memory**: Memory desired for computation in GB \[int\] \[optional: 30\]
+-**this_nullmodel_disk**: Disk space desired for computation in GB \[int\] \[optional: 100\]
+-**this_agg_file**: Aggregation file contains lists of variants that should be aggregated into groups. Can also be used to filter variants in sliding window or single variant tests, or topass a variant weight column. File should be a CSV file with the headers: group_id, chromosome, position, ref and alt.  All variants for with the same group_idwill be combined into a single aggregate tests \[file\] \[\*.csv, \*.rda, \*.rdata, \*.Rda, \*.Rdata\] \[optional\]
+-**this_top_maf**: Maximim minor allele frequency ( generally used for aggregate tests ) \[float\] \[optional: 1\]
+-**this_test_stat**: Valid tests statistic types are: Score and Score.SPA \[string\] \[optional: Score\]
+-**this_test_type**: Valid tests are one of the collapsing tests Burden, SKAT, fastSKAT, SMMAT,  SKATO or Single \[string\]
+-**this_min_mac**: Minimum minor allele count for threshold \[int\] \[optional: 5\]
+-**this_weights**: Beta weights set to flat weights (e.g. set to 'c(1,25)' for Wu weights or 'c(0.5,0.5)' for Madsen-Browning weights) \[string\] \[optional: FALSE\]
+-**this_weights_col**: Name of column in aggfile that contains the variant weights \[string\] \[optional: FALSE\]
+-**this_user_cores**: Number of cores to use in parallel \[int\] \[optional: min(machine cores - 1, 30)\]
+-**this_window**: Runs a sliding window test based on this window size, in bp \[int\] \[optional: 0\]
+-**this_step**: For use with 'window', indicates sliding window step size, in bp \[int\] \[optional: 0\]
+-**this_genome_build**: hg38 or hg19 \[string\] \[optional: hg38\]
+-**this_pass_only**: Filter variants to those with a PASS flag: TRUE or FALSE \[string\] \[optional: TRUE\]
+-**this_imputed**: Input data is imputed: TRUE or FALSE \[string\] \[optional: FALSE\]
+-**this_neig**: The number eigenvalues to approximate by using random projections for calculating p-values with fastSKAT \[int\] \[optional: 200\]
+-**this_ntrace**: The number of vectors to sample when using random projections to estimate the trace needed for p-value calculation with fastSKAT \[int\] \[optional: 500\]
+-**this_interaction**: Character string specifying the name of the variables for which a genotype interaction term should be included. Single variant only \[string\] \[optional: NULL\]
+-**this_return_variants**: Returns single snp results for each aggregate test \[string\] \[optional: FALSE\]
+-**this_tests_memory**: Memory desired for computation in GB \[int\] \[optional: 30\]
+-**this_tests_disk**: Disk space desired for computation in GB \[int\] \[optional: 100\]
+-**this_pval_threshold**: Threshold over association p-value for generating top results table from the summarize task \[float\] \[optional: 0.0001\]
+-**this_summarize_memory**: Memory desired for computation in GB \[int\] \[optional: 30\]
+-**this_summarize_disk**: memory desired for computation in GB \[int\] \[optional: 30\]
