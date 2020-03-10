@@ -1,8 +1,6 @@
 {
-  "genesis_tests_wf.this_min_mac": 1,
   "genesis_tests_wf.these_genotype_files": ["inputs/1KG_phase3_subset_chr1.gds"],
-  "genesis_tests_wf.this_user_cores": 6,
-  "genesis_tests_wf.this_top_maf": 0.4,
+  "genesis_tests_wf.this_user_cores": 1,
   "genesis_tests_wf.this_disk": 20,
   "genesis_tests_wf.this_memory": 5,
   "genesis_tests_wf.this_null_model": "outputs/1KG_phase3_subset.RData",
@@ -10,5 +8,7 @@
   "genesis_tests_wf.this_test_type": "Single",
   "genesis_tests_wf.this_results_file": "1KG_phase3_subset.csv",
   "genesis_tests_wf.this_genome_build": "hg19",
-  "genesis_tests_wf.this_return_variants": "F"
+  "genesis_tests_wf.this_return_variants": "F",
+  "genesis_tests_wf.this_top_maf": 0.4,
+  "genesis_tests_wf.this_min_mac": 1
 }
