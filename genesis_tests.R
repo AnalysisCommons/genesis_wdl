@@ -17,8 +17,8 @@ null.model <- args[12]
 results.file <- args[13]
 
 genome_build = args[14]
-pass_only = ifelse(tolower(args[15]) == "F", F, T)
-imputed = ifelse(tolower(args[16]) == "F", F, T)
+pass_only = ifelse(tolower(args[15]) == "f", F, T)
+imputed = ifelse(tolower(args[16]) == "f", F, T)
 neig = as.numeric(args[17])
 ntrace = as.numeric(args[18])
 interaction = args[19]
