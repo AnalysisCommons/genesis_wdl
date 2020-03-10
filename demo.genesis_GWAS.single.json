@@ -8,7 +8,9 @@
   "genesis_gwas_wf.this_pheno_file": "inputs/1KG_phase3_subset.phenotypes.csv",
   "genesis_gwas_wf.this_covariates_string": "ancestry,sex,last_exam_age,bmi",
   "genesis_gwas_wf.this_min_mac": 5,
+  "genesis_gwas_wf.this_top_maf": 0.4,
   "genesis_gwas_wf.this_kinship_matrix": "inputs/1KG_phase3_subset.grm.RData",
-  "genesis_gwas_wf.this_pheno_id": "sample_id"
+  "genesis_gwas_wf.this_pheno_id": "sample_id",
+  "genesis_gwas_wf.this_genome_build": "hg19",
+  "genesis_gwas_wf.this_pass_only": "T"
 }
-

@@ -38,7 +38,7 @@ task genesis_tests {
 
 	output {
 		File results = select_first(glob("*.gz"))
-		File varresults = select_first(glob("*.Rdata"))
+		File varresults = select_first(glob("*.RData"))
 	}
 }
 

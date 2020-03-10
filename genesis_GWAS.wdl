@@ -13,8 +13,8 @@ task genesis_nullmodel {
 	String? transform_rankNorm
 	String? transform_rescale
 
-	Int memory
-	Int disk
+	Int? memory
+	Int? disk
 
 	command {
 		R --vanilla --args ${outcome_name} ${default="Continuous" outcome_type} ${default="NA" covariates_string} ${pheno_file} ${genotype_file} ${results_file} ${default="NO_KINSHIP_FILE" kinship_matrix} ${default="ID" pheno_id} ${default="NA" conditional} ${default="NA" het_varsIn} ${default="none" transform} ${default="all" transform_rankNorm} ${default="none" transform_rescale} < /genesis_wdl/genesis_nullmodel.R
@@ -22,8 +22,8 @@ task genesis_nullmodel {
 
 	runtime {
 		docker: "analysiscommon/genesis_wdl:v1_4_1"
-		disks: "local-disk ${disk} HDD"
-		memory: "${memory} GB"
+		disks: "local-disk " + select_first([disk,"100"]) + " HDD"
+		memory: select_first([memory,"30"]) + " GB"
 	}
 
 	output {
@@ -56,8 +56,8 @@ task genesis_tests {
 	String? return_variants
 
 
-	Int memory
-	Int disk
+	Int? memory
+	Int? disk
 
 	command {
 		R --vanilla --args ${default="NONE" agg_file} ${default="1" top_maf} ${default="Score" test_stat} ${test_type} ${default="5" min_mac} ${default="FALSE" weights} ${default="FALSE" weights_col} ${default="30" user_cores} ${default="0" window} ${default="0" step} ${genotype_file} ${null_model} ${results_file} ${default="hg38" genome_build} ${default="T" pass_only} ${default="F" imputed} ${default="200" neig} ${default="500" ntrace} ${default="NULL" interaction} ${default="F" return_variants} < /genesis_wdl/genesis_tests.R
@@ -65,13 +65,13 @@ task genesis_tests {
 
 	runtime {
 		docker: "analysiscommon/genesis_wdl:v1_4_1"
-		disks: "local-disk ${disk} SSD"
-		memory: "${memory} GB"
+		disks: "local-disk " + select_first([disk,"100"]) + " HDD"
+		memory: select_first([memory,"30"]) + " GB"
 	}
 
 	output {
 		File results = select_first(glob("*.gz"))
-		File varresults = select_first(glob("*.Rdata"))
+		File varresults = select_first(glob("*.RData"))
 	}
 }
 
@@ -228,7 +228,7 @@ workflow genesis_gwas_wf {
 				window = this_window,
 				step = this_step,
 				genotype_file = this_genotype_file,
-				null_model = this_null_model,
+				null_model = genesis_nullmodel.results,
 				results_file = this_results_file,
 				genome_build = this_genome_build,
 				pass_only = this_pass_only,

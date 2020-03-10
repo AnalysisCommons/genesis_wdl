@@ -6,7 +6,7 @@
   "genesis_tests_wf.this_null_model": "outputs/1KG_phase3_subset.RData",
   "genesis_tests_wf.this_test_stat": "Score",
   "genesis_tests_wf.this_test_type": "Single",
-  "genesis_tests_wf.this_results_file": "1KG_phase3_subset.csv",
+  "genesis_tests_wf.this_results_file": "1KG_phase3_subset",
   "genesis_tests_wf.this_genome_build": "hg19",
   "genesis_tests_wf.this_return_variants": "F",
   "genesis_tests_wf.this_top_maf": 0.4,
