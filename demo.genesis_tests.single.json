@@ -1,5 +1,5 @@
 {
-  "genesis_tests_wf.these_genotype_files": ["inputs/1KG_phase3_subset_chr1.gds"],
+  "genesis_tests_wf.these_genotype_files": ["inputs/1KG_phase3_subset.gds"],
   "genesis_tests_wf.this_user_cores": 1,
   "genesis_tests_wf.this_disk": 20,
   "genesis_tests_wf.this_memory": 5,
