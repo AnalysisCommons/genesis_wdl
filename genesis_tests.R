@@ -386,8 +386,8 @@ runMainAnalysis = function(user_cores,in_nullmod,keepVars=NULL, keepGenes=NULL){
 print('Starting main analysis')
 results = runMainAnalysis(user_cores=user_cores,in_nullmod=nullmod)
 
+varresults.file <- paste0(results.file, ".variant_results.", chr, ".RData")
 results.file <- paste0(results.file, ".", chr, ".csv.gz")
-varresults.file <- paste0(results.file, ".", chr, ".RData")
 
 out <- gzfile(results.file, "w")
 
