@@ -1,0 +1,18 @@
+{
+  "genesis_tests_wf.this_outcome_name": "t2d",
+  "genesis_tests_wf.this_outcome_type": "Dichotomous",
+  "genesis_tests_wf.this_test_type": "SKAT",
+  "genesis_tests_wf.these_genotype_files": ["inputs/1KG_phase3_subset.gds"],
+  "genesis_tests_wf.this_results_file": "1KG_phase3_subset_aggregation",
+  "genesis_tests_wf.this_null_model": "outputs/1KG_phase3_subset.RData",
+  "genesis_tests_wf.this_min_mac": 5,
+  "genesis_tests_wf.this_top_maf": 0.4,
+  "genesis_tests_wf.this_agg_file": "inputs/1kg_phase3_subset_aggregation_file.csv",
+  "genesis_tests_wf.this_genome_build": "hg19",
+  "genesis_tests_wf.this_pass_only": "T",
+  "genesis_tests_wf.this_return_variants": "T",
+  "genesis_tests_wf.this_user_cores": 1,
+  "genesis_tests_wf.this_disk": 20,
+  "genesis_tests_wf.this_memory": 5
+}
+

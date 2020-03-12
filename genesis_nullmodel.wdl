@@ -21,7 +21,7 @@ task genesis_nullmodel {
 	}
 
 	runtime {
-		docker: "analysiscommon/genesis_wdl:v1_4_1"
+		docker: "analysiscommon/genesis_wdl:v0.2"
 		disks: "local-disk ${disk} HDD"
 		memory: "${memory} GB"
 	}

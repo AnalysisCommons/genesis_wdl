@@ -21,7 +21,7 @@ task genesis_nullmodel {
 	}
 
 	runtime {
-		docker: "analysiscommon/genesis_wdl:v1_4_1"
+		docker: "analysiscommon/genesis_wdl:v0.2"
 		disks: "local-disk " + select_first([disk,"100"]) + " HDD"
 		memory: select_first([memory,"30"]) + " GB"
 	}
@@ -64,7 +64,7 @@ task genesis_tests {
 	}
 
 	runtime {
-		docker: "analysiscommon/genesis_wdl:v1_4_1"
+		docker: "analysiscommon/genesis_wdl:v0.2"
 		disks: "local-disk " + select_first([disk,"100"]) + " HDD"
 		memory: select_first([memory,"30"]) + " GB"
 	}
@@ -88,7 +88,7 @@ task summarize {
 	}
 
 	runtime {
-		docker: "analysiscommon/genesis_wdl:v1_4_1"
+		docker: "analysiscommon/genesis_wdl:v0.2"
 		disks: "local-disk " + select_first([disk,"100"]) + " HDD"
 		memory: select_first([memory,"20"]) + " GB"
 	}
