@@ -3,7 +3,7 @@
   "genesis_gwas_wf.this_outcome_type": "Dichotomous",
   "genesis_gwas_wf.this_test_type": "SKAT",
   "genesis_gwas_wf.these_genotype_files": ["inputs/1KG_phase3_subset.gds"],
-  "genesis_gwas_wf.this_results_file": "1KG_phase3_subset_aggregation",
+  "genesis_gwas_wf.this_results_file": "1KG_phase3_subset.genesis_GWAS_aggregation",
   "genesis_gwas_wf.this_pheno_file": "inputs/1KG_phase3_subset.phenotypes.csv",
   "genesis_gwas_wf.this_covariates_string": "ancestry,sex,last_exam_age,bmi",
   "genesis_gwas_wf.this_min_mac": 5,
