@@ -203,6 +203,10 @@ if (nrow(assoc) == 0){
     assoc$chr <- as.numeric(as.character(assoc$chr))
     assoc$pos <- as.numeric(as.character(assoc$pos))
     assoc$P <- as.numeric(as.character(assoc[,pval]))
+
+    # remove NA pvalues and 0 pvalues
+    assoc <- assoc[!is.na(assoc$P),]
+    assoc <- assoc[assoc$P > 0,]
     
     # sort by chromosome and position
     assoc <- assoc[order(assoc$chr, assoc$pos),]
