@@ -31,7 +31,7 @@ task genesis_tests {
 	}
 
 	runtime {
-		docker: "analysiscommon/genesis_wdl:v0.2"
+		docker: "analysiscommon/genesis_wdl:v1.4.1"
 		disks: "local-disk ${disk} SSD"
 		memory: "${memory} GB"
 	}
