@@ -109,8 +109,8 @@ make_manhattan <- function(data, pval_col){
     TRUE ~ 2
   )
   ramwas::manPlotFast(man, colorSet = c('#474747',"#8f8f8f"), lwd = 1, axistep = axistep, cex = 0.8, yaxmax = ymax+axistep)
-  if (ymax > 7) abline(h = -log(5e-8), col = 'red', lty = 2)
-  if (ymax > 4) abline(h = -log(5e-5), col = 'blue', lty = 2)
+  if (ymax > 7) abline(h = -log10(5e-8), col = 'red', lty = 2)
+  if (ymax > 4) abline(h = -log10(5e-5), col = 'blue', lty = 2)
 }
 
 
@@ -204,9 +204,10 @@ if (nrow(assoc) == 0){
     assoc$pos <- as.numeric(as.character(assoc$pos))
     assoc$P <- as.numeric(as.character(assoc[,pval]))
 
-    # remove NA pvalues and 0 pvalues
+    # remove NA, 0, and inf pvalues
     assoc <- assoc[!is.na(assoc$P),]
     assoc <- assoc[assoc$P > 0,]
+    assoc <- assoc[!is.infinite(assoc$P),]
 
     if (nrow(assoc) == 0){
       write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
