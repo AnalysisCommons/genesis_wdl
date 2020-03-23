@@ -214,6 +214,10 @@ if(USE_AGG){
 	}
 
 	if(AGG_T){
+
+		# remove groups with different chromosomes
+		agg <- agg[agg$chr == chr,]
+
 		chunk <- function(x,n) split(x, cut(seq_along(x), n, labels = FALSE))
                 cat('N AggUnits=',length(unique(agg$group_id)),'done\n')
     	
@@ -393,12 +397,12 @@ out <- gzfile(results.file, "w")
 
 if(return_variants){
 	print('Returning single variants from aggregate tests...')
-	comb.results <- combineAggRes(results, varresults.file)
-	write.csv(comb.results, out, row.names=F)
+	comb.results <- na.omit(combineAggRes(results, varresults.file))
+	write.csv(comb.results, out, row.names=T)
 	close(out)
 }else{
 	results = as.data.frame(results)
-	write.csv(results, out, row.names=F)
+	write.csv(results, out, row.names=T)
 	close(out)
 	varres.save <- "Variant results not requested."
 	save(varres.save, file = varresults.file)
