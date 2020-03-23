@@ -215,9 +215,6 @@ if(USE_AGG){
 
 	if(AGG_T){
 
-		# remove groups with different chromosomes
-		agg <- agg[agg$chr == chr,]
-
 		chunk <- function(x,n) split(x, cut(seq_along(x), n, labels = FALSE))
                 cat('N AggUnits=',length(unique(agg$group_id)),'done\n')
     	
