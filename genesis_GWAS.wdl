@@ -65,7 +65,7 @@ task genesis_tests {
 
 	runtime {
 		docker: "analysiscommon/genesis_wdl:v1.4.1"
-		disks: "local-disk " + select_first([disk,"100"]) + " HDD"
+		disks: "local-disk " + select_first([disk,"100"]) + " SSD"
 		memory: select_first([memory,"30"]) + " GB"
 	}
 

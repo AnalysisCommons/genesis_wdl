@@ -89,6 +89,10 @@ FILTER = F # aff file used for filtering.  Can filter both SW and Single as well
 USE_AGG = F # use agg file for aggregation, filtering or weighting
 
 if(agg.file != 'NONE') USE_AGG = T
+if(agg.file != 'NONE') {
+	user_cores <- 1
+	print("Only using single threading due to unresolved issue with aggregation and multithreading.")
+}
 
 if(!test.type %in% collapsing.tests){
 	print("Selected Single Variant Test")
