@@ -8,11 +8,11 @@ library(gap)
 # data frame. 
 #
 checkPhenotype <- function(p, outcome, covariates, id.col=NULL, gender.col=NULL) {
-  #if (!is.null(id.col)) {
-  #  if (anyDuplicated(p[ , id.col])) {
-  #    stop("Duplicated phenotype ids.")
-  #  }
-  #}
+  if (!is.null(id.col)) {
+    if (anyDuplicated(p[ , id.col])) {
+      stop("Duplicated phenotype ids.")
+    }
+  }
   
   missing.covariates <- !(covariates %in% colnames(p))
   if (any(missing.covariates)) {
