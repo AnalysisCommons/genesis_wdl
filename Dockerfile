@@ -10,7 +10,6 @@ RUN Rscript -e "packageurl<-'https://cran.r-project.org/src/contrib/Archive/bdsm
 
 RUN Rscript -e "packageurl<-'https://cran.r-project.org/src/contrib/Archive/gap/gap_1.2.1.tar.gz'; install.packages(packageurl, repos=NULL, type='source')"
 
-
 RUN Rscript -e "install.packages(c('doMC', 'qqman', 'RColorBrewer', 'foreach')); BiocManager::install('ramwas')"
 
 RUN git clone https://github.com/AnalysisCommons/genesis_wdl.git

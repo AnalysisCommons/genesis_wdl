@@ -290,43 +290,45 @@ doOne = function(idx,in_nullmod) {
 			 
 				 if(length(seqGetData(svd, "variant.id"))>0){
    
-		if(SW_T){
-			iterator <- SeqVarWindowIterator(svd, windowSize=window, windowShift=step,verbose = T)
-		}else if(AGG_T){
-			iterator <- SeqVarListIterator(svd, avl,verbose=T)
-		}else if(SINGLE_T){
-			iterator <- SeqVarBlockIterator(svd,variantBlock=4000,verbose = T)
-		}
-  
-  
-		## Collapse test
-
- 		if (SW_T || AGG_T) {
-
-			## beta function weights
-			res <- assocTestAggregate( iterator, 
-				in_nullmod, 
-				weight.beta = weights,
-				test=test.type,   genome.build = genome_build, imputed=imputed, verbose=T)
-			if(SW_T){
-				generes <- cbind(data.frame(gene=paste(res$results$chr,res$results$start,res$results$end,sep='_') ,  res$results,stringsAsFactors=F))
-				res$results$windowname = paste(res$results$chr,res$results$start,res$results$end,sep='_')
-				names(res$variantInfo) = paste(res$results$chr,res$results$start,res$results$end,sep='_')
- 			}else{
- 				generes <- cbind(data.frame(gene=row.names(res$results) ,  res$results,stringsAsFactors=F))
-			}
- 
- 
-		}else {  # Single variant test
-
- 			generes <- assocTestSingle(iterator,  test =  test.stat, in_nullmod, genome.build = genome_build,imputed=imputed,GxE=interaction,verbose=T)
-			#via <- variantInfo(svd, alleles = TRUE, expanded=FALSE)
-			generes = merge(generes,via[,c('variant.id','ref','alt')],by='variant.id')
-			cat(paste('Ran assoc',NROW(generes),'\n'))
-			generes$snpID = paste0(generes$chr,':',generes$pos,':',generes$ref,':',generes$alt)  
-
-		} # end single
-	} # end is >0 variants to test
+        		if(SW_T){
+        			iterator <- SeqVarWindowIterator(svd, windowSize=window, windowShift=step,verbose = T)
+        		}else if(AGG_T){
+        			iterator <- SeqVarListIterator(svd, avl,verbose=T)
+        		}else if(SINGLE_T){
+        			iterator <- SeqVarBlockIterator(svd,variantBlock=4000,verbose = T)
+        		}
+        		## Collapse test
+        
+         		if (SW_T || AGG_T) {
+        
+        			## beta function weights
+        			res <- assocTestAggregate( iterator, 
+        				in_nullmod, 
+        				weight.beta = weights,
+        				test=test.type,   genome.build = genome_build, imputed=imputed, verbose=T)
+        			if(SW_T){
+        				generes <- cbind(data.frame(gene=paste(res$results$chr,res$results$start,res$results$end,sep='_') ,  res$results,stringsAsFactors=F))
+        				res$results$windowname = paste(res$results$chr,res$results$start,res$results$end,sep='_')
+        				names(res$variantInfo) = paste(res$results$chr,res$results$start,res$results$end,sep='_')
+         			}else{
+         				generes <- cbind(data.frame(gene=row.names(res$results) ,  res$results,stringsAsFactors=F))
+         				# generes <- cbind(generes, do.call(rbind, lapply(res$variantInfo, function(x) c(chr = unique(x$chr), start = min(x$pos, na.rm = T), end = max(x$pos, na.rm = T)))))
+         				# generes$chr <- ifelse(as.character(generes$chr) %in% c("-Inf","Inf"), NA, as.character(generes$chr))
+         				# generes$start <- ifelse(is.infinite(as.numeric(as.character(generes$start))), NA, as.numeric(as.character(generes$start)))
+         				# generes$end <- ifelse(is.infinite(as.numeric(as.character(generes$end))), NA, as.numeric(as.character(generes$end)))
+        			}
+         
+         
+        		}else {  # Single variant test
+        
+         			generes <- assocTestSingle(iterator,  test =  test.stat, in_nullmod, genome.build = genome_build,imputed=imputed,GxE=interaction,verbose=T)
+        			#via <- variantInfo(svd, alleles = TRUE, expanded=FALSE)
+        			generes = merge(generes,via[,c('variant.id','ref','alt')],by='variant.id')
+        			cat(paste('Ran assoc',NROW(generes),'\n'))
+        			generes$snpID = paste0(generes$chr,':',generes$pos,':',generes$ref,':',generes$alt)  
+        
+        		} # end single
+        	} # end is >0 variants to test
  
 	seqClose(f)
  	if(!exists("generes")){
@@ -337,7 +339,7 @@ doOne = function(idx,in_nullmod) {
   		res
  	}else{
   		generes
-  	}
+  }
 }
 
 combineAggRes = function(ares, varres.file){

@@ -11,7 +11,7 @@
   "genesis_tests_wf.this_genome_build": "hg19",
   "genesis_tests_wf.this_pass_only": "T",
   "genesis_tests_wf.this_return_variants": "T",
-  "genesis_tests_wf.this_user_cores": 1,
+  "genesis_tests_wf.this_user_cores": 5,
   "genesis_tests_wf.this_disk": 20,
   "genesis_tests_wf.this_memory": 5
 }
