@@ -1,5 +1,6 @@
 # install/load packages
 library(data.table)
+library(dplyr)
 
 # fix a unicode error
 Sys.setlocale(category = "LC_ALL","C.UTF-8")
@@ -176,15 +177,16 @@ write_table <- function(data, out.file){
 input_args <- commandArgs(trailingOnly=T)
 pval.threshold <- as.numeric(input_args[1])
 results.file <- input_args[2]
-assoc.files <- unlist(strsplit(input_args[3], ","))
+agg.file <- input_args[3]
+assoc.files <- unlist(strsplit(input_args[4], ","))
 
 # Load result files and concat
-assoc <- do.call(rbind, lapply(assoc.files, fread, data.table = F, stringsAsFactors = F))
+assoc <- do.call(plyr::rbind.fill, lapply(assoc.files, fread, data.table = F, stringsAsFactors = F)) %>%
+  filter(!is.na(V1)) %>%
+  select(-V1)
 
 # stop if files are empty
 if (nrow(assoc) == 0){
-  # fwrite(list(NA), paste0(results.file, ".all_variants.assoc.csv"), sep=",", row.names = F)
-  # fwrite(list(NA), paste0(results.file, ".top_variants.assoc.csv"), sep=",", row.names = F)
   write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
   write_table(assoc, paste0(results.file, ".top_variants.assoc.csv"))
   png(filename = paste0(results.file,".association.plots.png"), width = 1, height = 1, units = "in", res = 50, type = "cairo")
@@ -241,7 +243,48 @@ if (nrow(assoc) == 0){
         dev.off()
       }
     }
-  } else { # multi variant tests
+  } else if (agg.file != "NA"){ # tests using an aggregation file
+    # load aggregation units
+    agg <- fread(agg.file, data.table = F, stringsAsFactors = F) %>%
+      rename_all(tolower) %>%
+      group_by(group_id) %>%
+      mutate(min_pos = min(pos, na.rm = T),
+        max_pos = max(pos, na.rm = T)) %>%
+        mutate(pos = median(c(min_pos, max_pos)))
+    names(agg)[names(agg) %in%  c('chr','chrom','chromosome')] = 'chr' 
+    
+    # get aggregation format correct
+    agg <- agg %>%
+      mutate(chr = sub('chr', '', chr)) %>%
+      select(group_id, chr, pos, min_pos, max_pos) %>%
+      distinct()
+    
+    if (any(agg$chr == "X")) agg[agg$chr == "X", "chr"] <- 23
+    if (any(agg$chr == "Y")) agg[agg$chr == "Y", "chr"] <- 24
+    if (any(agg$chr == "M")) agg[agg$chr == "M", "chr"] <- 25
+    
+    # merge with association results
+    assoc <- merge(assoc, agg, by.x = 'gene', by.y = 'group_id', all.x = T)
+    assoc$chr <- as.numeric(as.character(assoc$chr))
+    
+    # write out results
+    top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
+    write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
+    write_table(top.assoc, paste0(results.file, ".top_variants.assoc.csv"))  
+    
+    # remove NA, 0, and inf pvalues
+    assoc$P <- as.numeric(as.character(assoc[,pval]))
+    assoc <- assoc[!is.na(assoc$P),]
+    assoc <- assoc[assoc$P > 0,]
+    assoc <- assoc[!is.infinite(assoc$P),]
+    
+    # make plots
+    png(filename = paste0(results.file,".association.plots.png"), width = 12, height = 4, units = "in", res = 400, type = "cairo")
+    layout(matrix(c(1,2,2),nrow=1,byrow = T))
+    
+    make_small_summary_plot_v2(assoc, pval_col = "P")
+    dev.off()
+  } else { # sliding window
     top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
     write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
     write_table(top.assoc, paste0(results.file, ".top_variants.assoc.csv"))  

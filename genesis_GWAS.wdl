@@ -78,13 +78,14 @@ task genesis_tests {
 task summarize {
 	Float? pval_threshold
 	String results_file
+	File? agg_file
 	Array[File] assoc_files
 
 	Int? memory
 	Int? disk
 
 	command {
-		R --vanilla --args ${default="0.0001" pval_threshold} ${results_file} ${sep="," assoc_files} < /genesis_wdl/summarize_GWAS.R
+		R --vanilla --args ${default="0.0001" pval_threshold} ${results_file} ${default="NA" agg_file} ${sep="," assoc_files} < /genesis_wdl/summarize_GWAS.R
 	}
 
 	runtime {
@@ -247,6 +248,7 @@ workflow genesis_gwas_wf {
 		input:
 			pval_threshold = this_pval_threshold,
 			results_file = this_results_file,
+			agg_file = this_agg_file,
 			assoc_files = genesis_tests.results,
 			memory = this_summarize_memory,
 			disk = this_summarize_disk
