@@ -181,9 +181,7 @@ agg.file <- input_args[3]
 assoc.files <- unlist(strsplit(input_args[4], ","))
 
 # Load result files and concat
-assoc <- do.call(plyr::rbind.fill, lapply(assoc.files, fread, data.table = F, stringsAsFactors = F)) %>%
-  filter(!is.na(V1)) %>%
-  select(-V1)
+assoc <- do.call(plyr::rbind.fill, lapply(assoc.files, fread, data.table = F, stringsAsFactors = F))
 
 # stop if files are empty
 if (nrow(assoc) == 0){
@@ -244,6 +242,14 @@ if (nrow(assoc) == 0){
       }
     }
   } else if (agg.file != "NA"){ # tests using an aggregation file
+    # make sure group ids are in assoc file
+    if (!("gene" %in% names(assoc))) {
+      assoc <- assoc %>%
+        mutate(gene = V1) %>%
+        filter(!is.na(V1)) %>%
+        select(-V1)
+    }
+    
     # load aggregation units
     agg <- fread(agg.file, data.table = F, stringsAsFactors = F) %>%
       rename_all(tolower) %>%
