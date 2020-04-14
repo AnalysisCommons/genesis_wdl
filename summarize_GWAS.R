@@ -5,17 +5,38 @@ library(dplyr)
 # fix a unicode error
 Sys.setlocale(category = "LC_ALL","C.UTF-8")
 
-# make a Quantile Quantile plot, with two types of points
-make_qq_frq <- function(pvals1, pvals2, main = "QQ plot"){
-  pvals1 <- sort(-log10(pvals1[pvals1 > 0]))
-  pvals2 <- sort(-log10(pvals2[pvals2 > 0]))
-  ymax <- ceiling(max(max(pvals1), max(pvals2)))
+# normalize association DF
+normalizeAssoc <- function(df, pval, remove = T){
+  # Make sure the columns are in the right format
+  df$pos <- as.numeric(as.character(df$pos))
+  df$P <- as.numeric(as.character(df[,pval]))
   
-  plot(x = qexp(ppoints(length(pvals1)))/log(10), y = pvals1, xlab = "Expected", ylab = "Observed", main = main, col = "#E69F00", cex = .8, bg = "#E69F00", pch = 21, ylim = c(0, ymax))
-  abline(0, 1, lty = 2)
-  points(x = qexp(ppoints(length(pvals2)))/log(10), y = pvals2, col = "#56B4E9", cex = .8, bg = "#56B4E9", pch = 21)
+  # remove NA, 0, and inf pvalues
+  if (remove == T){
+    df <- df[!is.na(df$P),]
+    df <- df[df$P > 0,]
+    df <- df[!is.infinite(df$P),]  
+  }
+  return(df)
 }
 
+normalizeSW <- function(df, pval, remove = T){
+  # Make sure the columns are in the right format
+  df$start <- as.numeric(as.character(df$start))
+  df$end <- as.numeric(as.character(df$end))
+  df$pos <- ceiling(unlist(apply(df %>% select(start, end), 1, median, na.rm = T)))
+  df$P <- as.numeric(as.character(df[,pval]))
+  
+  # remove NA, 0, and inf pvalues
+  if (remove == T){
+    df <- df[!is.na(df$P),]
+    df <- df[df$P > 0,]
+    df <- df[!is.infinite(df$P),]  
+  }
+  return(df)
+}
+
+# make a Quantile Quantile plot, with two types of points
 make_qq_frq_v2 <- function(data, pval_col){
   qq1 <- ramwas::qqPlotPrepare(sort(data[[pval_col]][data$freq >= 0.01 & data[[pval_col]] > 0]))
   qq1$lambda <-  NULL
@@ -63,13 +84,6 @@ make_qq_frq_v2 <- function(data, pval_col){
 }
 
 # make a Quantile Quantile plot
-make_qq <- function(pvals, main = "QQ plot"){
-  pvals <- sort(-log10(pvals[pvals > 0]))
-  plot(x = qexp(ppoints(length(pvals)))/log(10), y = pvals, xlab = "Expected", ylab = "Observed", main = main, col = "#000000", cex = .8, bg = "#000000", pch = 21, ylim = c(0, ceiling(max(pvals))))
-  abline(0, 1, lty = 2)
-}
-
-# make a Quantile Quantile plot
 make_qq_v2 <- function(data, pval_col){
   qq <- ramwas::qqPlotPrepare(sort(data[[pval_col]][data[[pval_col]] > 0]))
   qq$lambda <-  NULL
@@ -114,27 +128,7 @@ make_manhattan <- function(data, pval_col){
   if (ymax > 4) abline(h = -log10(5e-5), col = 'blue', lty = 2)
 }
 
-
 # make the full summary plot with two QQs and one MH
-make_summary_plot <- function(data, pval_col = "pval", alt_frq_col = "freq", chr_col = "chr", pos_col = "pos"){  
-  make_qq(data[[pval_col]], main = " ")
-  legend(x = 'topleft', y = 'topleft', bquote(lambda == .(lam.new(data[[pval_col]]))),col = "#000000", pch = 21, pt.bg = "#000000", bty = 'n', cex = 1.2)
-  
-  maf.g <- data[data[[alt_frq_col]] >= 0.01,][[pval_col]]
-  maf.l <- data[data[[alt_frq_col]] < 0.01,][[pval_col]]
-  make_qq_frq(maf.g, maf.l, main = " ")
-  legend(x = 'topleft', 
-         y = 'topleft', 
-         c(as.expression(bquote(lambda[AF<1] == .(lam.new(maf.l)))), as.expression(bquote(lambda[AF>=1] == .(lam.new(maf.g))))),
-         col = c("#E69F00", "#56B4E9"), 
-         pch = c(21,21), 
-         pt.bg = c("#E69F00", "#56B4E9"), 
-         cex = 1.2, 
-         bty = 'n')
-  
-  manhattan(data, chr = chr_col, bp = pos_col, p = pval_col, main = "All variants", suggestiveline = -log10(5e-5), genomewideline = -log10(5e-8))
-}
-
 make_summary_plot_v2 <- function(data, pval_col = "pval"){  
   make_qq_v2(data, pval_col)
   make_qq_frq_v2(data, pval_col)
@@ -142,13 +136,6 @@ make_summary_plot_v2 <- function(data, pval_col = "pval"){
 }
 
 # make a small summary plot with one qq and one mh
-make_small_summary_plot <- function(data, pval_col = "pval", alt_frq_col = "freq", chr_col = "chr", pos_col = "pos"){
-  make_qq(data[[pval_col]], main = " ")
-  # legend('topleft',c(paste0('ALL ',lam.new(data[[pval_col]]))),col=c("#000000"), pch=c(21), bty = 'n')
-  legend(x = 'topleft', y = 'topleft', bquote(lambda == .(lam.new(data[[pval_col]]))),col=c("#000000"), pch=c(21), bty = 'n', cex = 1.2)
-  manhattan(data, chr = chr_col, bp = pos_col, p = pval_col, main = "All variants", suggestiveline = -log10(5e-5), genomewideline = -log10(5e-8))
-}
-
 make_small_summary_plot_v2 <- function(data, pval_col = "pval"){  
   make_qq_v2(data, pval_col)
   make_manhattan(data, pval_col)
@@ -177,79 +164,60 @@ write_table <- function(data, out.file){
 input_args <- commandArgs(trailingOnly=T)
 pval.threshold <- as.numeric(input_args[1])
 results.file <- input_args[2]
-agg.file <- input_args[3]
-assoc.files <- unlist(strsplit(input_args[4], ","))
+test.type <- input_args[3]
+agg.file <- input_args[4]
+assoc.files <- unlist(strsplit(input_args[5], ","))
+
+# output files
+assoc.out_file <- paste0(results.file, ".all_variants.assoc.csv")
+top_assoc.out_file <- paste0(results.file, ".top_variants.assoc.csv")
+plot.out_file <- paste0(results.file,".association.plots.png")
 
 # Load result files and concat
 assoc <- do.call(plyr::rbind.fill, lapply(assoc.files, fread, data.table = F, stringsAsFactors = F))
 
 # stop if files are empty
 if (nrow(assoc) == 0){
-  write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
-  write_table(assoc, paste0(results.file, ".top_variants.assoc.csv"))
-  png(filename = paste0(results.file,".association.plots.png"), width = 1, height = 1, units = "in", res = 50, type = "cairo")
+  write_table(assoc, assoc.out_file)
+  write_table(assoc, top_assoc.out_file)
+  png(filename = plot.out_file, width = 1, height = 1, units = "in", res = 50, type = "cairo")
   dev.off()
 } else {
   # get right pval column
   pval <- names(assoc)[grep("pval",names(assoc))][1]
   
   # single variant tests:
-  if ("chr" %in% names(assoc)){
+  if (test.type == "Single"){
     # Make sure the columns are in the right format
-    assoc$chr <- sub("^chr", "", as.character(assoc$chr))
-    if (any(assoc$chr == "X")) assoc[assoc$chr == "X", "chr"] <- 23
-    if (any(assoc$chr == "Y")) assoc[assoc$chr == "Y", "chr"] <- 24
-    if (any(assoc$chr == "M")) assoc[assoc$chr == "M", "chr"] <- 25
-    assoc$chr <- as.numeric(as.character(assoc$chr))
-    assoc$pos <- as.numeric(as.character(assoc$pos))
-    assoc$P <- as.numeric(as.character(assoc[,pval]))
+    assoc.norm <- normalizeAssoc(assoc, pval, remove = T)
 
-    # remove NA, 0, and inf pvalues
-    assoc <- assoc[!is.na(assoc$P),]
-    assoc <- assoc[assoc$P > 0,]
-    assoc <- assoc[!is.infinite(assoc$P),]
-
-    if (nrow(assoc) == 0){
-      write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
-      write_table(assoc, paste0(results.file, ".top_variants.assoc.csv"))
-      png(filename = paste0(results.file,".association.plots.png"), width = 1, height = 1, units = "in", res = 50, type = "cairo")
+    if (nrow(assoc.norm) == 0){
+      write_table(assoc, assoc.out_file)
+      write_table(assoc, top_assoc.out_file)
+      png(filename = plot.out_file, width = 1, height = 1, units = "in", res = 50, type = "cairo")
       dev.off()
     } else {
-    
-    # sort by chromosome and position
-      assoc <- assoc[order(assoc$chr, assoc$pos),]
-      
       # Write out the top results
       top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
       
       # Write out all results
-      write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
-      write_table(top.assoc, paste0(results.file, ".top_variants.assoc.csv"))
+      write_table(assoc, assoc.out_file)
+      write_table(top.assoc, top_assoc.out_file)
       
       # Generate summary plots
-      if (any(assoc$freq < 0.01)) {
-        png(filename = paste0(results.file,".association.plots.png"), width = 8, height = 8, units = "in", res = 400, type = "cairo")
+      if (any(assoc.norm$freq < 0.01)) {
+        png(filename = plot.out_file, width = 8, height = 8, units = "in", res = 400, type = "cairo")
         layout(matrix(c(1,2,3,3),nrow=2,byrow = T))
-        # make_summary_plot(assoc, pval_col = "P")
-        make_summary_plot_v2(assoc, pval_col = "P")
+        make_summary_plot_v2(assoc.norm, pval_col = "P")
         dev.off()
       } else {
-        png(filename = paste0(results.file,".association.plots.png"), width = 12, height = 4, units = "in", res = 400, type = "cairo")
+        png(filename = plot.out_file, width = 12, height = 4, units = "in", res = 400, type = "cairo")
         layout(matrix(c(1,2,2),nrow=1,byrow = T))
-        # make_small_summary_plot(assoc, pval_col = "P")
-        make_small_summary_plot_v2(assoc, pval_col = "P")
+        make_small_summary_plot_v2(assoc.norm, pval_col = "P")
         dev.off()
       }
     }
   } else if (agg.file != "NA"){ # tests using an aggregation file
-    # make sure group ids are in assoc file
-    if (!("gene" %in% names(assoc))) {
-      assoc <- assoc %>%
-        mutate(gene = V1) %>%
-        filter(!is.na(V1)) %>%
-        select(-V1)
-    }
-    
     # load aggregation units
     agg <- fread(agg.file, data.table = F, stringsAsFactors = F) %>%
       rename_all(tolower) %>%
@@ -261,41 +229,59 @@ if (nrow(assoc) == 0){
     
     # get aggregation format correct
     agg <- agg %>%
-      mutate(chr = sub('chr', '', chr)) %>%
       select(group_id, chr, pos, min_pos, max_pos) %>%
       distinct()
-    
-    if (any(agg$chr == "X")) agg[agg$chr == "X", "chr"] <- 23
-    if (any(agg$chr == "Y")) agg[agg$chr == "Y", "chr"] <- 24
-    if (any(agg$chr == "M")) agg[agg$chr == "M", "chr"] <- 25
-    
+  
     # merge with association results
-    assoc <- merge(assoc, agg, by.x = 'gene', by.y = 'group_id', all.x = T)
-    assoc$chr <- as.numeric(as.character(assoc$chr))
+    assoc.norm <- merge(assoc, agg, by.x = 'V1', by.y = 'group_id', all.x = T) %>%
+      normalizeAssoc(pval = pval, remove = T)
+    names(assoc.norm)[names(assoc.norm) == "V1"] <- "group_id"
     
-    # write out results
-    top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
-    write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
-    write_table(top.assoc, paste0(results.file, ".top_variants.assoc.csv"))  
+    if (nrow(assoc.norm) == 0){
+      write_table(assoc, assoc.out_file)
+      write_table(assoc, top_assoc.out_file)
+      png(filename = plot.out_file, width = 1, height = 1, units = "in", res = 50, type = "cairo")
+      dev.off()
+    } else {
+      # write out results
+      top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
+      write_table(assoc, assoc.out_file)
+      write_table(top.assoc, top_assoc.out_file)  
+      
+      # make plots
+      png(filename = plot.out_file, width = 12, height = 4, units = "in", res = 400, type = "cairo")
+      layout(matrix(c(1,2,2),nrow=1,byrow = T))
+      make_small_summary_plot_v2(assoc.norm, pval_col = "P")
+      dev.off()
+    }
+  } else if (test.type %in% c("Burden", "SKAT", "fastSKAT", "SMMAT",  "SKATO")) { # sliding window
+    # normalize assoc
+    assoc.norm <- normalizeSW(assoc, pval, remove = T)
     
-    # remove NA, 0, and inf pvalues
-    assoc$P <- as.numeric(as.character(assoc[,pval]))
-    assoc <- assoc[!is.na(assoc$P),]
-    assoc <- assoc[assoc$P > 0,]
-    assoc <- assoc[!is.infinite(assoc$P),]
-    
-    # make plots
-    png(filename = paste0(results.file,".association.plots.png"), width = 12, height = 4, units = "in", res = 400, type = "cairo")
-    layout(matrix(c(1,2,2),nrow=1,byrow = T))
-    
-    make_small_summary_plot_v2(assoc, pval_col = "P")
+    if (nrow(assoc.norm) == 0){
+      write_table(assoc, assoc.out_file)
+      write_table(assoc, top_assoc.out_file)
+      png(filename = plot.out_file, width = 1, height = 1, units = "in", res = 50, type = "cairo")
+      dev.off()
+    } else {
+      # get top associations
+      top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
+      
+      # write out results
+      write_table(assoc, assoc.out_file)
+      write_table(top.assoc, top_assoc.out_file)  
+      
+      # make plots
+      png(filename = plot.out_file, width = 12, height = 4, units = "in", res = 400, type = "cairo")
+      layout(matrix(c(1,2,2),nrow=1,byrow = T))
+      make_small_summary_plot_v2(assoc.norm, pval_col = "P")
+      dev.off()
+    }
+  } else {
+    write_table(assoc, assoc.out_file)
+    write_table(assoc, top_assoc.out_file)
+    png(filename = plot.out_file, width = 1, height = 1, units = "in", res = 50, type = "cairo")
     dev.off()
-  } else { # sliding window
-    top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
-    write_table(assoc, paste0(results.file, ".all_variants.assoc.csv"))
-    write_table(top.assoc, paste0(results.file, ".top_variants.assoc.csv"))  
-    
-    file.create(paste0(results.file,".association.plots.png"))
   }
 }
 
