@@ -3,7 +3,7 @@
   "genesis_tests_wf.this_user_cores": 1,
   "genesis_tests_wf.this_disk": 20,
   "genesis_tests_wf.this_memory": 5,
-  "genesis_tests_wf.this_null_model": "outputs/1KG_phase3_subset.genesis_nullmodel.RData",
+  "genesis_tests_wf.this_null_model": "outputs/genesis_nullmodel/1KG_phase3_subset.genesis_nullmodel.RData",
   "genesis_tests_wf.this_test_stat": "Score",
   "genesis_tests_wf.this_test_type": "Single",
   "genesis_tests_wf.this_results_file": "1KG_phase3_subset.genesis_tests_single",

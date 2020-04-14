@@ -237,6 +237,9 @@ if (nrow(assoc) == 0){
       normalizeAssoc(pval = pval, remove = T)
     names(assoc.norm)[names(assoc.norm) == "V1"] <- "group_id"
     
+    assoc.norm <- assoc.norm %>%
+      arrange(factor(chr, levels = c(as.character(1:22), "X", "Y", "M")), as.numeric(pos))
+    
     if (nrow(assoc.norm) == 0){
       write_table(assoc, assoc.out_file)
       write_table(assoc, top_assoc.out_file)
@@ -264,6 +267,9 @@ if (nrow(assoc) == 0){
       png(filename = plot.out_file, width = 1, height = 1, units = "in", res = 50, type = "cairo")
       dev.off()
     } else {
+      assoc.norm <- assoc.norm %>%
+        arrange(factor(chr, levels = c(as.character(1:22), "X", "Y", "M")), as.numeric(pos))
+      
       # get top associations
       top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
       
