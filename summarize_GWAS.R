@@ -241,6 +241,7 @@ if (nrow(assoc) == 0){
       distinct()
   
     # merge with association results
+    if ("gene" %in% names(assoc)) assoc$V1 <- assoc$gene
     assoc.norm <- merge(assoc, agg, by.x = 'V1', by.y = 'group_id', all.x = T) %>%
       normalizeAssoc(pval = pval, remove = T)
     names(assoc.norm)[names(assoc.norm) == "V1"] <- "group_id"
