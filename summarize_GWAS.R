@@ -8,6 +8,10 @@ Sys.setlocale(category = "LC_ALL","C.UTF-8")
 # normalize association DF
 normalizeAssoc <- function(df, pval, remove = T){
   # Make sure the columns are in the right format
+  df$chr <- sub("chr", "", df$chr)
+  chr.levels <- c(1:22, "X")
+  cur.chrs <- unique(df$chr)
+  df$chr <- factor(df$chr, levels = chr.levels[chr.levels %in% cur.chrs])
   df$pos <- as.numeric(as.character(df$pos))
   df$P <- as.numeric(as.character(df[,pval]))
   
@@ -22,6 +26,10 @@ normalizeAssoc <- function(df, pval, remove = T){
 
 normalizeSW <- function(df, pval, remove = T){
   # Make sure the columns are in the right format
+  df$chr <- sub("chr", "", df$chr)
+  chr.levels <- c(1:22, "X")
+  cur.chrs <- unique(df$chr)
+  df$chr <- factor(df$chr, levels = chr.levels[chr.levels %in% cur.chrs])
   df$start <- as.numeric(as.character(df$start))
   df$end <- as.numeric(as.character(df$end))
   df$pos <- ceiling(unlist(apply(df %>% select(start, end), 1, median, na.rm = T)))
@@ -236,9 +244,6 @@ if (nrow(assoc) == 0){
     assoc.norm <- merge(assoc, agg, by.x = 'V1', by.y = 'group_id', all.x = T) %>%
       normalizeAssoc(pval = pval, remove = T)
     names(assoc.norm)[names(assoc.norm) == "V1"] <- "group_id"
-    
-    assoc.norm <- assoc.norm %>%
-      arrange(factor(chr, levels = c(as.character(1:22), "X", "Y", "M")), as.numeric(pos))
     
     if (nrow(assoc.norm) == 0){
       write_table(assoc, assoc.out_file)
