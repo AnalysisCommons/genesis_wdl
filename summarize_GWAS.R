@@ -192,7 +192,21 @@ if (nrow(assoc) == 0){
   dev.off()
 } else {
   # get right pval column
-  pval <- names(assoc)[grep("pval",names(assoc))][1]
+  if ("Score.pval" %in% names(assoc)){ # All burden tests, Score single var
+    pval <- "Score.pval"
+  } else if ("SPA.pval" in names(assoc)){ # SPA single var
+    pval <- "SPA.pval"
+  } else if ("Joint.pval" %in% names(assoc)){ # GxE single var
+    pval <- "Joint.pval"
+  } else if ("pval" %in% names(assoc)){ # Skat, Fastskat, BinomiRare or CMP
+    pval <- "pval"
+  } else if ("pval_SMMAT" %in% names(assoc)){ # SMMAT
+    pval <- "pval_SMMAT"
+  } else if ("pval_SKATO" %in% names(assoc)){ # SKATO
+    pval <- "pval_SKATO"
+  }
+
+  # pval <- names(assoc)[grep("pval",names(assoc))][1]
   
   # single variant tests:
   if (test.type == "Single"){
