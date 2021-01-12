@@ -14,6 +14,6 @@ RUN Rscript -e "install.packages(c('doMC', 'qqman', 'RColorBrewer', 'foreach'));
 
 RUN git clone https://github.com/AnalysisCommons/genesis_wdl.git
 
-RUN cd genesis_wdl && git checkout v1_4_1  && git pull origin v1_4_1
+RUN cd genesis_wdl && git checkout skato  && git pull origin skato
 
 RUN rm -rf /usr/local/analysis_pipeline/testdata/
