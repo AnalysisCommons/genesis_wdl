@@ -10,7 +10,7 @@ RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; 
 
 # RUN sudo Rscript -e "packageurl<-'https://cran.r-project.org/src/contrib/Archive/gap/gap_1.2.1.tar.gz'; install.packages(packageurl, repos=NULL, type='source')"
 
-RUN sudo Rscript -e "install.packages(c('dplyr', 'dbplyr', 'doMC', 'qqman', 'RColorBrewer', 'foreach')); BiocManager::install(c('biomaRt','ramwas'))"
+RUN sudo Rscript -e "install.packages(c('dplyr', 'dbplyr', 'doMC', 'qqman', 'RColorBrewer', 'foreach', 'gap', 'bdsmatrix')); BiocManager::install(c('biomaRt','ramwas'))"
 
 RUN cd /usr/local
 
