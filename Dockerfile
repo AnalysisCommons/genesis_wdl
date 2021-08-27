@@ -2,7 +2,7 @@ FROM uwgac/topmed-master:2.10.0
 
 MAINTAINER Tim Majarian <tmajaria@broadinstitute.org>
 
-RUN apt-get update && apt-get -y install git
+RUN sudo apt-get update && sudo apt-get -y install git
 
 RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
 
@@ -12,8 +12,10 @@ RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; 
 
 RUN sudo Rscript -e "install.packages(c('dplyr', 'dbplyr', 'doMC', 'qqman', 'RColorBrewer', 'foreach')); BiocManager::install(c('biomaRt','ramwas'))"
 
+RUN cd /usr/local
+
 RUN sudo git clone https://github.com/AnalysisCommons/genesis_wdl.git
 
-RUN sudo cd genesis_wdl && git checkout v1_4_1 && git pull origin v1_4_1
+RUN cd genesis_wdl && sudo git checkout v1_5 && sudo git pull origin v1_5
 
 RUN sudo rm -rf /usr/local/analysis_pipeline/testdata/
