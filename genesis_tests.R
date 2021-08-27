@@ -3,8 +3,8 @@ args<-commandArgs(TRUE)
 
 agg.file <- args[1] 
 top.maf <- as.numeric(args[2]) 
-test.stat <-  args[3] # Score, Wald
-test.type  <-  args[4] # Burden, Single, SKAT, SMMAT
+test.stat <-  args[3] # Score, Score.SPA
+test.type  <-  args[4] # Burden, Single, SKAT, SMMAT, fastSKAT
 
 min.mac <- as.integer(args[5])
 weights <- args[6]
@@ -305,6 +305,8 @@ doOne = function(idx,in_nullmod) {
         			res <- assocTestAggregate( iterator, 
         				in_nullmod, 
         				weight.beta = weights,
+        				neig = neig,
+        				ntrace = ntrace,
         				test=test.type,   genome.build = genome_build, imputed=imputed, verbose=T)
         			if(SW_T){
         				generes <- cbind(data.frame(gene=paste(res$results$chr,res$results$start,res$results$end,sep='_') ,  res$results,stringsAsFactors=F))
