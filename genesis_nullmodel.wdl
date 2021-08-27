@@ -13,17 +13,17 @@ task genesis_nullmodel {
 	String? transform_rankNorm
 	String? transform_rescale
 
-	Int memory
-	Int disk
+	Int? memory
+	Int? disk
 
 	command {
 		R --vanilla --args ${outcome_name} ${default="Continuous" outcome_type} ${default="NA" covariates_string} ${pheno_file} ${genotype_file} ${results_file} ${default="NO_KINSHIP_FILE" kinship_matrix} ${default="ID" pheno_id} ${default="NA" conditional} ${default="NA" het_varsIn} ${default="none" transform} ${default="all" transform_rankNorm} ${default="none" transform_rescale} < /genesis_wdl/genesis_nullmodel.R
 	}
 
 	runtime {
-		docker: "analysiscommon/genesis_wdl:v0.1.5"
-		disks: "local-disk ${disk} HDD"
-		memory: "${memory} GB"
+		docker: "analysiscommon/genesis_wdl:v1.5"
+		disks: "local-disk " + select_first([disk,"100"]) + " HDD"
+		memory: select_first([memory,"30"]) + " GB"
 	}
 
 	output {
@@ -46,8 +46,8 @@ workflow genesis_nullmodel_wf {
 	String? this_transform_rankNorm
 	String? this_transform_rescale
 
-	Int this_memory
-	Int this_disk
+	Int? this_memory
+	Int? this_disk
 
 	# Workflow metadata
 	meta {

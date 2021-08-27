@@ -23,8 +23,8 @@ task genesis_tests {
 	String? return_variants
 
 
-	Int memory
-	Int disk
+	Int? memory
+	Int? disk
 
 	command {
 		R --vanilla --args ${default="NONE" agg_file} ${default="1" top_maf} ${default="Score" test_stat} ${test_type} ${default="5" min_mac} ${default="FALSE" weights} ${default="FALSE" weights_col} ${default="30" user_cores} ${default="0" window} ${default="0" step} ${genotype_file} ${null_model} ${results_file} ${default="hg38" genome_build} ${default="T" pass_only} ${default="F" imputed} ${default="200" neig} ${default="500" ntrace} ${default="NULL" interaction} ${default="F" return_variants} < /genesis_wdl/genesis_tests.R
@@ -32,8 +32,8 @@ task genesis_tests {
 
 	runtime {
 		docker: "analysiscommon/genesis_wdl:v0.1.5"
-		disks: "local-disk ${disk} SSD"
-		memory: "${memory} GB"
+		disks: "local-disk " + select_first([disk,"100"]) + " SSD"
+		memory: select_first([memory,"30"]) + " GB"
 	}
 
 	output {
@@ -68,8 +68,8 @@ workflow genesis_tests_wf {
 	String? this_return_variants
 
 
-	Int this_memory
-	Int this_disk
+	Int? this_memory
+	Int? this_disk
 
 	# Workflow metadata
 	meta {
