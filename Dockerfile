@@ -14,8 +14,11 @@ RUN sudo Rscript -e "install.packages(c('dplyr', 'dbplyr', 'doMC', 'qqman', 'RCo
 
 RUN cd /usr/local
 
+Run echo git
+
 RUN sudo git clone https://github.com/AnalysisCommons/genesis_wdl.git
 
 RUN cd genesis_wdl && sudo git checkout v1_5 && sudo git pull origin v1_5
 
 RUN sudo rm -rf /usr/local/analysis_pipeline/testdata/
+
