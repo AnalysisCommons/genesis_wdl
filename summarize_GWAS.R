@@ -220,6 +220,7 @@ if (nrow(assoc) == 0){
       dev.off()
     } else {
       # Write out the top results
+      top.assoc <- assoc[!is.na(assoc[,pval]),]
       top.assoc <- assoc[assoc[,pval] < pval.threshold, ]
       
       # Write out all results
